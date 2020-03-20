@@ -4,6 +4,8 @@ namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 
 use Amp\Delayed;
 use Amp\Loop;
+use Closure;
+use Generator;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Phpactor\AmpFsWatch\ModifiedFile;
@@ -18,11 +20,13 @@ class InotifyWatcherTest extends IntegrationTestCase
         $this->workspace()->reset();
     }
 
-    public function testWatch(): void
+    /**
+     * @dataProvider provideMonitors
+     */
+    public function testMonitors(Closure $plan, array $expectedModifications): void
     {
         $watcher = new InotifyWatcher(
-            $this->workspace()->path(),
-            new NullLogger()
+            $this->workspace()->path()
         );
         $watcher->start();
         $modifications = [];
@@ -31,17 +35,33 @@ class InotifyWatcherTest extends IntegrationTestCase
             $modifications[] = $modification;
         });
 
-        Loop::run(function () {
-            yield new Delayed(10);
-            $this->workspace()->put('foobar', '');
-            $this->workspace()->put('foobar', '');
-            yield new Delayed(10);
-            $this->workspace()->put('foobar', '');
-            $this->workspace()->put('foobar', '');
-            yield new Delayed(10);
+        Loop::run(function () use ($plan) {
+            $generator = $plan();
+            yield from $generator;
             Loop::stop();
         });
 
         Assert::assertCount(4, $modifications);
+    }
+
+    /**
+     * @return Generator<Promise>
+     */
+    public function provideMonitors(): Generator
+    {
+        yield [
+            function () {
+                yield new Delayed(10);
+                $this->workspace()->put('foobar', '');
+                $this->workspace()->put('foobar', '');
+                yield new Delayed(10);
+                $this->workspace()->put('foobar', '');
+                $this->workspace()->put('foobar', '');
+                yield new Delayed(10);
+            },
+            [
+                new ModifiedFile($this->workspace()->path('foobar'))
+            ]
+        ];
     }
 }

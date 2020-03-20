@@ -28,15 +28,9 @@ class InotifyWatcher implements Watcher
      */
     private $path;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(string $path, LoggerInterface $logger)
+    public function __construct(string $path)
     {
         $this->path = $path;
-        $this->logger = $logger;
     }
 
     public function start(): void
@@ -55,6 +49,11 @@ class InotifyWatcher implements Watcher
 
             $this->feedCallback($stdout, $callback);
 
+            $stderr = '';
+            $stderrStream = $this->process->getStderr();
+            \Amp\asyncCall(function () use (&$stderr, $stderrStream) {
+                $stderr .= yield $stderrStream->read();
+            });
             $exitCode = yield $this->process->join();
 
             if ($exitCode === 0) {
@@ -62,9 +61,10 @@ class InotifyWatcher implements Watcher
             }
 
             throw new RuntimeException(sprintf(
-                'Process "%s" existed with error code %s',
+                'Process "%s" exited with error code %s: %s',
                 $this->process->getCommand(),
-                $exitCode
+                $exitCode,
+                $stderr
             ));
         });
     }
