@@ -6,7 +6,7 @@ use Amp\Process\Process;
 use Amp\Process\ProcessInputStream;
 use Amp\Promise;
 use Generator;
-use Phpactor\AmpFsWatch\FileModification;
+use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -107,11 +107,27 @@ class InotifyWatcher implements Watcher
 
                     $line = $this->buffer;
                     $this->buffer = '';
-                    $modification = FileModification::fromCsvString($line);
+                    $modification = $this->createFileModification($line);
 
                     $callback($modification);
                 }
             }
         });
+    }
+
+    private function createFileModification(string $line): ModifiedFile
+    {
+        $parts = str_getcsv($line);
+
+        if (count($parts) !== 3) {
+            throw new RuntimeException(sprintf(
+                'Could not parse inotify output "%s"',
+                $line
+            ));
+        }
+
+        [$watchedFileName, $eventNames, $eventFilename] = str_getcsv($line);
+
+        return new ModifiedFile(join([$watchedFileName, '/', $eventFilename]));
     }
 }

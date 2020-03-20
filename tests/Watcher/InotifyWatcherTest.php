@@ -6,7 +6,7 @@ use Amp\Delayed;
 use Amp\Loop;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
-use Phpactor\AmpFsWatch\FileModification;
+use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher\InotifyWatcher;
 use Psr\Log\NullLogger;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
@@ -27,7 +27,7 @@ class InotifyWatcherTest extends IntegrationTestCase
         $watcher->start();
         $modifications = [];
 
-        $watcher->monitor(function (FileModification $modification) use (&$modifications) {
+        $watcher->monitor(function (ModifiedFile $modification) use (&$modifications) {
             $modifications[] = $modification;
         });
 
