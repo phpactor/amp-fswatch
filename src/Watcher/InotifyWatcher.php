@@ -28,9 +28,15 @@ class InotifyWatcher implements Watcher
      */
     private $path;
 
-    public function __construct(string $path)
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    public function __construct(string $path, LoggerInterface $logger)
     {
         $this->path = $path;
+        $this->logger = $logger;
     }
 
     public function start(): void
@@ -82,6 +88,7 @@ class InotifyWatcher implements Watcher
             ]);
 
             $pid = yield $process->start();
+            $this->logger->debug(sprintf('Started "%s"', $process->getCommand()));
 
             if (!$process->isRunning()) {
                 throw new RuntimeException(sprintf(
@@ -106,28 +113,19 @@ class InotifyWatcher implements Watcher
                     }
 
                     $line = $this->buffer;
+                    $this->logger->debug($line);
                     $this->buffer = '';
-                    $modification = $this->createFileModification($line);
+                    $event = InotifyEvent::createFromCsv($line);
+
+                    if ($event->hasEventName('ISDIR')) {
+                        continue;
+                    }
+
+                    $modification = new ModifiedFile($event->watchedFileName() . '/' . $event->eventFilename());
 
                     $callback($modification);
                 }
             }
         });
-    }
-
-    private function createFileModification(string $line): ModifiedFile
-    {
-        $parts = str_getcsv($line);
-
-        if (count($parts) !== 3) {
-            throw new RuntimeException(sprintf(
-                'Could not parse inotify output "%s"',
-                $line
-            ));
-        }
-
-        [$watchedFileName, $eventNames, $eventFilename] = str_getcsv($line);
-
-        return new ModifiedFile(join([$watchedFileName, '/', $eventFilename]));
     }
 }

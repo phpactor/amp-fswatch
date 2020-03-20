@@ -2,6 +2,8 @@
 
 namespace Phpactor\AmpFsWatch;
 
+use Webmozart\PathUtil\Path;
+
 class ModifiedFile
 {
     /**
@@ -11,7 +13,7 @@ class ModifiedFile
 
     public function __construct(string $path)
     {
-        $this->path = $path;
+        $this->path = Path::canonicalize($path);
     }
 
     public function path(): string

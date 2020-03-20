@@ -10,6 +10,7 @@ use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher\InotifyWatcher;
+use Psr\Log\AbstractLogger;
 use Psr\Log\NullLogger;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
 
@@ -26,8 +27,14 @@ class InotifyWatcherTest extends IntegrationTestCase
     public function testMonitors(Closure $plan, array $expectedModifications): void
     {
         $watcher = new InotifyWatcher(
-            $this->workspace()->path()
+            $this->workspace()->path(),
+            new class extends AbstractLogger {
+                public function log($level, $message, array $context = array()) {
+                    fwrite(STDERR, sprintf('[%s] %s', $level, $message)."\n");
+                }
+            }
         );
+
         $watcher->start();
         $modifications = [];
 
@@ -41,7 +48,7 @@ class InotifyWatcherTest extends IntegrationTestCase
             Loop::stop();
         });
 
-        Assert::assertCount(4, $modifications);
+        $this->assertEquals($expectedModifications, $modifications);
     }
 
     /**
@@ -49,7 +56,7 @@ class InotifyWatcherTest extends IntegrationTestCase
      */
     public function provideMonitors(): Generator
     {
-        yield [
+        yield 'multiple single files' => [
             function () {
                 yield new Delayed(10);
                 $this->workspace()->put('foobar', '');
@@ -60,7 +67,31 @@ class InotifyWatcherTest extends IntegrationTestCase
                 yield new Delayed(10);
             },
             [
+                new ModifiedFile($this->workspace()->path('foobar')),
+                new ModifiedFile($this->workspace()->path('foobar')),
+                new ModifiedFile($this->workspace()->path('foobar')),
                 new ModifiedFile($this->workspace()->path('foobar'))
+            ]
+        ];
+
+        yield 'ignores directories' => [
+            function () {
+                yield new Delayed(10);
+                mkdir($this->workspace()->path('barfoo'));
+                yield new Delayed(10);
+            },
+            [
+            ]
+        ];
+
+        yield 'nested file' => [
+            function () {
+                yield new Delayed(10);
+                $this->workspace()->put('barfoo/baz', '');
+                yield new Delayed(10);
+            },
+            [
+                new ModifiedFile($this->workspace()->path('barfoo/baz')),
             ]
         ];
     }
