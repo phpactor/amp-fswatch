@@ -41,7 +41,7 @@ class InotifyWatcher implements Watcher
 
     public function start(): void
     {
-        $this->process = \Amp\wait($this->startProcess());
+        $this->process = \Amp\Promise\wait($this->startProcess());
     }
 
     /**

@@ -2,12 +2,9 @@
 
 namespace Phpactor\AmpFsWatch;
 
-use Amp\Promise;
-
 interface Watcher
 {
-    /**
-     * Return a promise with a FileModification object.
-     */
-    public function monitor(): Promise;
+    public function start(): void;
+
+    public function monitor(callable $callback): void;
 }
