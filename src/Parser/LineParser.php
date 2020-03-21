@@ -16,9 +16,8 @@ class LineParser
         \Amp\asyncCall(function () use ($stream, $callback) {
             while (null !== $chunk = yield $stream->read()) {
                 foreach (str_split($chunk) as $char) {
-                    $this->buffer .= $char;
-
                     if ($char !== "\n") {
+                        $this->buffer .= $char;
                         continue;
                     }
 

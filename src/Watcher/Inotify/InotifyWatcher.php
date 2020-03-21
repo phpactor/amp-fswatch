@@ -41,9 +41,8 @@ class InotifyWatcher implements Watcher
     public function monitor(callable $callback): void
     {
         $process = \Amp\Promise\wait($this->startProcess());
-        \Amp\asyncCall(function () use ($callback, $process) {
-            $buffer = '';
 
+        \Amp\asyncCall(function () use ($callback, $process) {
             $this->feedCallback($process, $callback);
 
             $stderr = '';
