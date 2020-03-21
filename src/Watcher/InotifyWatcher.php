@@ -7,6 +7,7 @@ use Amp\Process\ProcessInputStream;
 use Amp\Promise;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
+use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -82,7 +83,7 @@ class InotifyWatcher implements Watcher
                 'inotifywait',
                 $this->path,
                 '-r',
-                '-emodify,create',
+                '-emodify,create,delete',
                 '--monitor',
                 '--csv',
             ]);
@@ -113,17 +114,20 @@ class InotifyWatcher implements Watcher
                     }
 
                     $line = $this->buffer;
-                    $this->logger->debug($line);
+                    $this->logger->debug(sprintf('EVENT: %s', $line));
                     $this->buffer = '';
                     $event = InotifyEvent::createFromCsv($line);
 
+                    $builder = ModifiedFileBuilder::fromPathSegments(
+                        $event->watchedFileName(),
+                        $event->eventFilename()
+                    );
+
                     if ($event->hasEventName('ISDIR')) {
-                        continue;
+                        $builder = $builder->asFolder();
                     }
 
-                    $modification = new ModifiedFile($event->watchedFileName() . '/' . $event->eventFilename());
-
-                    $callback($modification);
+                    $callback($builder->build());
                 }
             }
         });

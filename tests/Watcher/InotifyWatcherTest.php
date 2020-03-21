@@ -9,8 +9,10 @@ use Generator;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Phpactor\AmpFsWatch\ModifiedFile;
+use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher\InotifyWatcher;
 use Psr\Log\AbstractLogger;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
 
@@ -28,16 +30,12 @@ class InotifyWatcherTest extends IntegrationTestCase
     {
         $watcher = new InotifyWatcher(
             $this->workspace()->path(),
-            new class extends AbstractLogger {
-                public function log($level, $message, array $context = array()) {
-                    fwrite(STDERR, sprintf('[%s] %s', $level, $message)."\n");
-                }
-            }
+            $this->createLogger()
         );
 
         $watcher->start();
-        $modifications = [];
 
+        $modifications = [];
         $watcher->monitor(function (ModifiedFile $modification) use (&$modifications) {
             $modifications[] = $modification;
         });
@@ -51,9 +49,6 @@ class InotifyWatcherTest extends IntegrationTestCase
         $this->assertEquals($expectedModifications, $modifications);
     }
 
-    /**
-     * @return Generator<Promise>
-     */
     public function provideMonitors(): Generator
     {
         yield 'multiple single files' => [
@@ -67,32 +62,43 @@ class InotifyWatcherTest extends IntegrationTestCase
                 yield new Delayed(10);
             },
             [
-                new ModifiedFile($this->workspace()->path('foobar')),
-                new ModifiedFile($this->workspace()->path('foobar')),
-                new ModifiedFile($this->workspace()->path('foobar')),
-                new ModifiedFile($this->workspace()->path('foobar'))
+                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
+                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
+                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
+                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
             ]
         ];
 
-        yield 'ignores directories' => [
+        yield 'directories' => [
             function () {
                 yield new Delayed(10);
                 mkdir($this->workspace()->path('barfoo'));
                 yield new Delayed(10);
             },
             [
+                new ModifiedFile($this->workspace()->path('barfoo'), ModifiedFile::TYPE_FOLDER),
             ]
         ];
 
-        yield 'nested file' => [
+        yield 'file removal' => [
             function () {
+                $this->workspace()->put('foobar', 'asd');
                 yield new Delayed(10);
-                $this->workspace()->put('barfoo/baz', '');
+                unlink($this->workspace()->path('foobar'));
                 yield new Delayed(10);
             },
             [
-                new ModifiedFile($this->workspace()->path('barfoo/baz')),
+                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
             ]
         ];
+    }
+
+    private function createLogger(): LoggerInterface
+    {
+        return new class extends AbstractLogger {
+            public function log($level, $message, array $context = array()) {
+                fwrite(STDERR, sprintf('[%s] %s', $level, $message)."\n");
+            }
+        };
     }
 }
