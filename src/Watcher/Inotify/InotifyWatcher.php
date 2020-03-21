@@ -14,11 +14,6 @@ use RuntimeException;
 class InotifyWatcher implements Watcher
 {
     /**
-     * @var Process
-     */
-    private $process;
-
-    /**
      * @var string
      */
     private $path;
@@ -45,19 +40,18 @@ class InotifyWatcher implements Watcher
      */
     public function monitor(callable $callback): void
     {
-        $this->process = \Amp\Promise\wait($this->startProcess());
-        \Amp\asyncCall(function () use ($callback) {
+        $process = \Amp\Promise\wait($this->startProcess());
+        \Amp\asyncCall(function () use ($callback, $process) {
             $buffer = '';
-            $stdout = $this->process->getStdout();
 
-            $this->feedCallback($stdout, $callback);
+            $this->feedCallback($process, $callback);
 
             $stderr = '';
-            $stderrStream = $this->process->getStderr();
+            $stderrStream = $process->getStderr();
             \Amp\asyncCall(function () use (&$stderr, $stderrStream) {
                 $stderr .= yield $stderrStream->read();
             });
-            $exitCode = yield $this->process->join();
+            $exitCode = yield $process->join();
 
             if ($exitCode === 0) {
                 return;
@@ -65,7 +59,7 @@ class InotifyWatcher implements Watcher
 
             throw new RuntimeException(sprintf(
                 'Process "%s" exited with error code %s: %s',
-                $this->process->getCommand(),
+                $process->getCommand(),
                 $exitCode,
                 $stderr
             ));
@@ -98,9 +92,9 @@ class InotifyWatcher implements Watcher
         });
     }
 
-    private function feedCallback(ProcessInputStream $stdout, callable $callback): void
+    private function feedCallback(Process $process, callable $callback): void
     {
-        $this->parser->stream($this->process->getStdout(), function (string $line) use ($callback) {
+        $this->parser->stream($process->getStdout(), function (string $line) use ($callback) {
             $this->logger->debug(sprintf('EVENT: %s', $line));
             $event = InotifyEvent::createFromCsv($line);
 
