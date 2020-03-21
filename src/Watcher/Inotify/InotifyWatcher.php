@@ -38,16 +38,12 @@ class InotifyWatcher implements Watcher
         $this->logger = $logger;
     }
 
-    public function start(): void
-    {
-        $this->process = \Amp\Promise\wait($this->startProcess());
-    }
-
     /**
      * {@inheritDoc}
      */
     public function monitor(callable $callback): void
     {
+        $this->process = \Amp\Promise\wait($this->startProcess());
         \Amp\asyncCall(function () use ($callback) {
             $buffer = '';
             $stdout = $this->process->getStdout();

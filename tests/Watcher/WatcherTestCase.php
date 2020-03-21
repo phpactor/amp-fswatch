@@ -26,8 +26,6 @@ abstract class WatcherTestCase extends IntegrationTestCase
     {
         $watcher = $this->createWatcher();
 
-        $watcher->start();
-
         $modifications = [];
         $watcher->monitor(function (ModifiedFile $modification) use (&$modifications) {
             $modifications[] = $modification;
