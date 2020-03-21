@@ -15,7 +15,6 @@ class InotifyWatcherTest extends WatcherTestCase
     protected function createWatcher(): Watcher
     {
         return new InotifyWatcher(
-            $this->workspace()->path(),
             $this->createLogger()
         );
     }
@@ -25,8 +24,9 @@ class InotifyWatcherTest extends WatcherTestCase
      */
     public function testMonitors(Closure $plan, array $expectedModifications): void
     {
-        $watcher = $this->createWatcher();
-        $modifications = $this->runLoop($watcher, $plan);
+        $modifications = $this->runLoop([
+            $this->workspace()->path()
+        ], $plan);
 
         $this->assertEquals($expectedModifications, $modifications);
     }
@@ -73,5 +73,26 @@ class InotifyWatcherTest extends WatcherTestCase
                 new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
             ]
         ];
+    }
+
+    public function testMultiplePaths(): void
+    {
+        $this->workspace()->mkdir('foobar');
+        $this->workspace()->mkdir('barfoo');
+
+        $modifications = $this->runLoop([
+            $this->workspace()->path('barfoo'),
+            $this->workspace()->path('foobar'),
+        ], function () {
+            yield new Delayed(200);
+            $this->workspace()->put('barfoo/foobar', '');
+            $this->workspace()->put('foobar/barfoo', '');
+            yield new Delayed(200);
+        });
+
+        $this->assertEquals([
+            new ModifiedFile($this->workspace()->path('barfoo/foobar'), ModifiedFile::TYPE_FILE),
+            new ModifiedFile($this->workspace()->path('foobar/barfoo'), ModifiedFile::TYPE_FILE),
+        ], $modifications);
     }
 }

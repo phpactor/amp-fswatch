@@ -13,13 +13,16 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
 
+/**
+ * @runTestsInSeparateProcesses
+ */
 abstract class WatcherTestCase extends IntegrationTestCase
 {
     protected function setUp(): void
     {
         // provide some time between tests to improve stability
-        usleep(100000);
         $this->workspace()->reset();
+        usleep(200000);
     }
 
     protected function createLogger(): LoggerInterface

@@ -14,11 +14,6 @@ use RuntimeException;
 class InotifyWatcher implements Watcher
 {
     /**
-     * @var string
-     */
-    private $path;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -28,9 +23,8 @@ class InotifyWatcher implements Watcher
      */
     private $parser;
 
-    public function __construct(string $path, LoggerInterface $logger, ?LineParser $parser = null)
+    public function __construct(LoggerInterface $logger, ?LineParser $parser = null)
     {
-        $this->path = $path;
         $this->logger = $logger;
         $this->parser = $parser ?: new LineParser();
     }
@@ -38,11 +32,11 @@ class InotifyWatcher implements Watcher
     /**
      * {@inheritDoc}
      */
-    public function monitor(callable $callback): void
+    public function monitor(array $paths, callable $callback): void
     {
-        $process = \Amp\Promise\wait($this->startProcess());
 
-        \Amp\asyncCall(function () use ($callback, $process) {
+        \Amp\asyncCall(function () use ($paths, $callback) {
+            $process = yield $this->startProcess($paths);
             $this->feedCallback($process, $callback);
 
             $stderr = '';
@@ -65,17 +59,16 @@ class InotifyWatcher implements Watcher
         });
     }
 
-    private function startProcess(): Promise
+    private function startProcess(array $paths): Promise
     {
-        return \Amp\call(function () {
-            $process = new Process([
+        return \Amp\call(function () use ($paths) {
+            $process = new Process(array_merge([
                 'inotifywait',
-                $this->path,
                 '-r',
                 '-emodify,create,delete',
                 '--monitor',
                 '--csv',
-            ]);
+            ], $paths));
 
             $pid = yield $process->start();
             $this->logger->debug(sprintf('Started "%s"', $process->getCommand()));
