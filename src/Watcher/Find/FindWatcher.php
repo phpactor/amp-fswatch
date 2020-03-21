@@ -66,13 +66,20 @@ class FindWatcher implements Watcher
      */
     private function search(callable $callback): Generator
     {
+        $start = microtime(true);
         $process = yield $this->startProcess();
         
         $stdout = $process->getStdout();
         $this->feedCallback($stdout, $callback);
         
         $exitCode = yield $process->join();
+        $stop = microtime(true);
         $this->updateDateReference();
+        $this->logger->debug(sprintf(
+            'Find process "%s" done in %s seconds',
+            $process->getCommand(),
+            number_format($stop - $start, 2)
+        ));
         
         if ($exitCode === 0) {
             return;
@@ -105,7 +112,6 @@ class FindWatcher implements Watcher
             ]);
 
             $pid = yield $process->start();
-            $this->logger->debug(sprintf('Started "%s"', $process->getCommand()));
 
             if (!$process->isRunning()) {
                 throw new RuntimeException(sprintf(
