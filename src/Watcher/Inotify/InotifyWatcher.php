@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\AmpFsWatch\Watcher;
+namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
 use Amp\Process\Process;
 use Amp\Process\ProcessInputStream;

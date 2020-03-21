@@ -7,7 +7,7 @@ use Amp\Loop;
 use Closure;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\Watcher\InotifyWatcher;
+use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;

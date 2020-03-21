@@ -1,8 +1,9 @@
 <?php
 
-namespace Phpactor\AmpFsWatcher\Tests\Watcher;
+namespace Phpactor\AmpFsWatcher\Tests\Watcher\Inotify;
 
-use Phpactor\AmpFsWatch\Watcher\InotifyWatcher;
+use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
+use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 
 class InotifyWatcherTest extends WatcherTestCase
 {
