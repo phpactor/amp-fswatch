@@ -16,15 +16,16 @@ class FindWatcherTest extends WatcherTestCase
 {
     protected function createWatcher(): Watcher
     {
-        return new FindWatcher($this->workspace()->path(), 100, $this->createLogger());
+        return new FindWatcher(100, $this->createLogger());
     }
 
     public function testDoesNotPickFilesExistingWhenStarted(): void
     {
         $this->workspace()->put('foobar', '');
 
-        $watcher = $this->createWatcher();
-        $modifications = $this->runLoop($watcher, function () {
+        $modifications = $this->runLoop([
+            $this->workspace()->path(),
+        ], function () {
             yield new Delayed(50);
         });
 
@@ -35,8 +36,9 @@ class FindWatcherTest extends WatcherTestCase
     {
         $this->workspace()->put('foobar', '');
 
-        $watcher = $this->createWatcher();
-        $modifications = $this->runLoop($watcher, function () {
+        $modifications = $this->runLoop([
+            $this->workspace()->path(),
+        ], function () {
             yield new Delayed(100);
             $this->workspace()->put('foobar', '');
             yield new Delayed(100);
@@ -49,8 +51,9 @@ class FindWatcherTest extends WatcherTestCase
 
     public function testPicksNewFile(): void
     {
-        $watcher = $this->createWatcher();
-        $modifications = $this->runLoop($watcher, function () {
+        $modifications = $this->runLoop([
+            $this->workspace()->path(),
+        ], function () {
             yield new Delayed(100);
             $this->workspace()->put('barfoo', '');
             yield new Delayed(100);
@@ -63,8 +66,9 @@ class FindWatcherTest extends WatcherTestCase
 
     public function testPicksNewFolder(): void
     {
-        $watcher = $this->createWatcher();
-        $modifications = $this->runLoop($watcher, function () {
+        $modifications = $this->runLoop([
+            $this->workspace()->path(),
+        ], function () {
             yield new Delayed(100);
             mkdir($this->workspace()->path('barfoo'));
             yield new Delayed(100);
@@ -72,6 +76,27 @@ class FindWatcherTest extends WatcherTestCase
 
         $this->assertEquals([
             new ModifiedFile($this->workspace()->path('barfoo'), ModifiedFile::TYPE_FOLDER),
+        ], $modifications);
+    }
+
+    public function testMultiplePaths(): void
+    {
+        $this->workspace()->mkdir('foobar');
+        $this->workspace()->mkdir('barfoo');
+
+        $modifications = $this->runLoop([
+            $this->workspace()->path('barfoo'),
+            $this->workspace()->path('foobar'),
+        ], function () {
+            yield new Delayed(200);
+            $this->workspace()->put('barfoo/foobar', '');
+            $this->workspace()->put('foobar/barfoo', '');
+            yield new Delayed(200);
+        });
+
+        $this->assertEquals([
+            new ModifiedFile($this->workspace()->path('barfoo/foobar'), ModifiedFile::TYPE_FILE),
+            new ModifiedFile($this->workspace()->path('foobar/barfoo'), ModifiedFile::TYPE_FILE),
         ], $modifications);
     }
 }

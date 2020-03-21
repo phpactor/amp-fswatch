@@ -17,11 +17,6 @@ use RuntimeException;
 class FindWatcher implements Watcher
 {
     /**
-     * @var string
-     */
-    private $path;
-
-    /**
      * @var LineParser
      */
     private $lineParser;
@@ -41,74 +36,74 @@ class FindWatcher implements Watcher
      */
     private $lastUpdate;
 
-    public function __construct(string $path, int $pollInterval, LoggerInterface $logger, ?LineParser $lineParser = null)
+    public function __construct(int $pollInterval, LoggerInterface $logger, ?LineParser $lineParser = null)
     {
-        $this->path = $path;
         $this->lineParser = $lineParser ?: new LineParser();
         $this->logger = $logger;
         $this->pollInterval = $pollInterval;
     }
 
-    public function monitor(callable $callback): void
+    public function monitor(array $paths, callable $callback): void
     {
         $this->updateDateReference();
 
-        \Amp\asyncCall(function () use ($callback) {
+        \Amp\asyncCall(function () use ($paths, $callback) {
             while (true) {
-                yield from $this->search($callback);
+                foreach ($paths as $path) {
+                    $this->search($path, $callback);
+                }
                 yield new Delayed($this->pollInterval);
             }
         });
     }
 
-    /**
-     * @return Generator<Promise>
-     */
-    private function search(callable $callback): Generator
+    private function search(string $path, callable $callback): void
     {
-        $start = microtime(true);
-        $process = yield $this->startProcess();
-        
-        $stdout = $process->getStdout();
-        $this->feedCallback($stdout, $callback);
-        
-        $exitCode = yield $process->join();
-        $stop = microtime(true);
-        $this->updateDateReference();
-        $this->logger->debug(sprintf(
-            'Find process "%s" done in %s seconds',
-            $process->getCommand(),
-            number_format($stop - $start, 2)
-        ));
-        
-        if ($exitCode === 0) {
-            return;
-        }
-        
-        throw new RuntimeException(sprintf(
-            'Process "%s" exited with error code %s',
-            $process->getCommand(),
-            $exitCode
-        ));
+        \Amp\asyncCall(function () use ($path, $callback) {
+            $start = microtime(true);
+            $process = yield $this->startProcess($path);
+
+            $stdout = $process->getStdout();
+            $this->feedCallback($stdout, $callback);
+
+            $exitCode = yield $process->join();
+            $stop = microtime(true);
+            $this->updateDateReference();
+            $this->logger->debug(sprintf(
+                'Find process "%s" done in %s seconds',
+                $process->getCommand(),
+                number_format($stop - $start, 2)
+            ));
+
+            if ($exitCode === 0) {
+                return;
+            }
+
+            throw new RuntimeException(sprintf(
+                'Process "%s" exited with error code %s',
+                $process->getCommand(),
+                $exitCode
+            ));
+        });
     }
 
-    private function feedCallback(ProcessInputStream $stream, callable $callback)
+    private function feedCallback(ProcessInputStream $stream, callable $callback): void
     {
         $this->lineParser->stream($stream, function (string $line) use ($callback) {
             $callback(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
         });
     }
 
-    private function startProcess()
+    private function startProcess(string $path): Promise
     {
-        return \Amp\call(function () {
+        return \Amp\call(function () use ($path) {
             $process = new Process([
                 'find',
-                $this->path,
+                $path,
                 '-newermt',
                 $this->lastUpdate->format('Y-m-d H:i:s.u'),
                 '-mindepth',
-                1
+                '1'
             ]);
 
             $pid = yield $process->start();

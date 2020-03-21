@@ -17,6 +17,8 @@ abstract class WatcherTestCase extends IntegrationTestCase
 {
     protected function setUp(): void
     {
+        // provide some time between tests to improve stability
+        usleep(100000);
         $this->workspace()->reset();
     }
 
@@ -25,15 +27,16 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return new class extends AbstractLogger {
             public function log($level, $message, array $context = [])
             {
-                fwrite(STDERR, sprintf('[%s] %s', $level, $message)."\n");
+                fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
         };
     }
 
-    protected function runLoop(Watcher $watcher, Closure $plan): array
+    protected function runLoop(array $paths, Closure $plan): array
     {
+        $watcher = $this->createWatcher();
         $modifications = [];
-        $watcher->monitor(function (ModifiedFile $modification) use (&$modifications) {
+        $watcher->monitor($paths, function (ModifiedFile $modification) use (&$modifications) {
             $modifications[] = $modification;
         });
         
