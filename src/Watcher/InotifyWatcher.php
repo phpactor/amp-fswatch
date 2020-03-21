@@ -5,8 +5,6 @@ namespace Phpactor\AmpFsWatch\Watcher;
 use Amp\Process\Process;
 use Amp\Process\ProcessInputStream;
 use Amp\Promise;
-use Generator;
-use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher;
 use Psr\Log\LoggerInterface;

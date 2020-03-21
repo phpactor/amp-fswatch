@@ -2,8 +2,6 @@
 
 namespace Phpactor\AmpFsWatch;
 
-use RuntimeException;
-
 class ModifiedFileBuilder
 {
     /**

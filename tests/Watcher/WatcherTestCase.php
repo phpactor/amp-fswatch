@@ -6,14 +6,10 @@ use Amp\Delayed;
 use Amp\Loop;
 use Closure;
 use Generator;
-use PHPUnit\Framework\Assert;
-use PHPUnit\Framework\TestCase;
 use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher\InotifyWatcher;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
 
 abstract class WatcherTestCase extends IntegrationTestCase
@@ -93,11 +89,12 @@ abstract class WatcherTestCase extends IntegrationTestCase
     protected function createLogger(): LoggerInterface
     {
         return new class extends AbstractLogger {
-            public function log($level, $message, array $context = array()) {
+            public function log($level, $message, array $context = [])
+            {
                 fwrite(STDERR, sprintf('[%s] %s', $level, $message)."\n");
             }
         };
     }
 
-    protected abstract function createWatcher(): InotifyWatcher;
+    abstract protected function createWatcher(): InotifyWatcher;
 }
