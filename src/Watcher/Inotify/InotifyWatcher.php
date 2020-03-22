@@ -22,6 +22,11 @@ class InotifyWatcher implements Watcher
      */
     private $parser;
 
+    /**
+     * @var Process
+     */
+    private $process;
+
     public function __construct(LoggerInterface $logger, ?LineParser $parser = null)
     {
         $this->logger = $logger;
@@ -34,27 +39,36 @@ class InotifyWatcher implements Watcher
     public function monitor(array $paths, callable $callback): void
     {
         \Amp\asyncCall(function () use ($paths, $callback) {
-            $process = yield $this->startProcess($paths);
-            $this->feedCallback($process, $callback);
+            $this->process = yield $this->startProcess($paths);
+            $this->feedCallback($this->process, $callback);
 
             $stderr = '';
-            $stderrStream = $process->getStderr();
-            \Amp\asyncCall(function () use (&$stderr, $stderrStream) {
-                $stderr .= yield $stderrStream->read();
-            });
-            $exitCode = yield $process->join();
+            $stderrStream = $this->process->getStderr();
+            $exitCode = yield $this->process->join();
 
             if ($exitCode === 0) {
                 return;
             }
 
+            $stderr = \Amp\Promise\wait($this->process->getStderr()->read());
+
             throw new RuntimeException(sprintf(
                 'Process "%s" exited with error code %s: %s',
-                $process->getCommand(),
+                $this->process->getCommand(),
                 $exitCode,
                 $stderr
             ));
         });
+    }
+
+    public function stop(): void
+    {
+        if (null === $this->process) {
+            throw new RuntimeException(
+                'Inotifywait process was not started, cannot call stop()'
+            );
+        }
+        $this->process->signal(SIGTERM);
     }
 
     /**

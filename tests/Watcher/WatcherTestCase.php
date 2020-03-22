@@ -41,7 +41,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
             $generator = $plan();
 
             yield from $generator;
-            Loop::stop();
+            $watcher->stop();
 
             return $modifications;
         });

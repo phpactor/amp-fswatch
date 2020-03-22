@@ -35,6 +35,11 @@ class FindWatcher implements Watcher
      */
     private $lastUpdate;
 
+    /**
+     * @var bool
+     */
+    private $running = true;
+
     public function __construct(int $pollInterval, LoggerInterface $logger, ?LineParser $lineParser = null)
     {
         $this->lineParser = $lineParser ?: new LineParser();
@@ -49,7 +54,7 @@ class FindWatcher implements Watcher
         $this->updateDateReference();
 
         \Amp\asyncCall(function () use ($paths, $callback) {
-            while (true) {
+            while ($this->running) {
                 $searches = [];
                 foreach ($paths as $path) {
                      $searches[] = $this->search($path, $callback);
@@ -59,6 +64,11 @@ class FindWatcher implements Watcher
                 yield new Delayed($this->pollInterval);
             }
         });
+    }
+
+    public function stop(): void
+    {
+        $this->running = false;
     }
 
     private function search(string $path, callable $callback): Promise
