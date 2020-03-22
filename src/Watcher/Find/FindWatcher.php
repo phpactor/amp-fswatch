@@ -50,9 +50,11 @@ class FindWatcher implements Watcher
 
         \Amp\asyncCall(function () use ($paths, $callback) {
             while (true) {
+                $searches = [];
                 foreach ($paths as $path) {
-                    yield $this->search($path, $callback);
+                     $searches[] = $this->search($path, $callback);
                 }
+                yield \Amp\Promise\all($searches);
                 $this->updateDateReference();
                 yield new Delayed($this->pollInterval);
             }
