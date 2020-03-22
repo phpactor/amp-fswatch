@@ -4,6 +4,7 @@ namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 
 use Amp\Delayed;
 use Amp\Loop;
+use Amp\Loop\DriverFactory;
 use Closure;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
@@ -13,16 +14,12 @@ use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
 
-/**
- * @runTestsInSeparateProcesses
- */
 abstract class WatcherTestCase extends IntegrationTestCase
 {
     protected function setUp(): void
     {
-        // provide some time between tests to improve stability
+        parent::setUp();
         $this->workspace()->reset();
-        usleep(200000);
     }
 
     protected function createLogger(): LoggerInterface
@@ -48,6 +45,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
             yield from $generator;
             Loop::stop();
         });
+
         return $modifications;
     }
 

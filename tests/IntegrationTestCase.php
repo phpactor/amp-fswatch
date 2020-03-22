@@ -2,10 +2,11 @@
 
 namespace Phpactor\AmpFsWatcher\Tests;
 
+use Amp\PHPUnit\AsyncTestCase;
 use PHPUnit\Framework\TestCase;
 use Phpactor\TestUtils\Workspace;
 
-class IntegrationTestCase extends TestCase
+class IntegrationTestCase extends AsyncTestCase
 {
     protected function workspace(): Workspace
     {
