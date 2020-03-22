@@ -3,7 +3,6 @@
 namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
 use Amp\Process\Process;
-use Amp\Process\ProcessInputStream;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Parser\LineParser;
@@ -34,7 +33,6 @@ class InotifyWatcher implements Watcher
      */
     public function monitor(array $paths, callable $callback): void
     {
-
         \Amp\asyncCall(function () use ($paths, $callback) {
             $process = yield $this->startProcess($paths);
             $this->feedCallback($process, $callback);
@@ -59,6 +57,9 @@ class InotifyWatcher implements Watcher
         });
     }
 
+    /**
+     * @param array<string> $paths
+     */
     private function startProcess(array $paths): Promise
     {
         return \Amp\call(function () use ($paths) {

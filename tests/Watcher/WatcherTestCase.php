@@ -2,15 +2,11 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 
-use Amp\Delayed;
 use Amp\Loop;
-use Amp\Loop\DriverFactory;
 use Amp\Promise;
 use Closure;
-use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;

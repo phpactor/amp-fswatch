@@ -7,7 +7,6 @@ use Amp\Process\Process;
 use Amp\Promise;
 use Amp\Process\ProcessInputStream;
 use DateTimeImmutable;
-use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\Watcher;
@@ -45,6 +44,8 @@ class FindWatcher implements Watcher
 
     public function monitor(array $paths, callable $callback): void
     {
+        $this->logger->info(sprintf('Polling at interval of "%s" milliseconds for changes paths "%s"', $this->pollInterval, implode('", "', $paths)));
+
         $this->updateDateReference();
 
         \Amp\asyncCall(function () use ($paths, $callback) {

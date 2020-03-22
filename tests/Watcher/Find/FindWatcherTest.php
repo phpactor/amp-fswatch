@@ -3,13 +3,10 @@
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Find;
 
 use Amp\Delayed;
-use Closure;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Generator;
-use PHPUnit\Framework\TestCase;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
-use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 
 class FindWatcherTest extends WatcherTestCase
