@@ -50,25 +50,26 @@ class FindWatcher implements Watcher
         \Amp\asyncCall(function () use ($paths, $callback) {
             while (true) {
                 foreach ($paths as $path) {
-                    $this->search($path, $callback);
+                    yield $this->search($path, $callback);
                 }
+                $this->updateDateReference();
                 yield new Delayed($this->pollInterval);
             }
         });
     }
 
-    private function search(string $path, callable $callback): void
+    private function search(string $path, callable $callback): Promise
     {
-        \Amp\asyncCall(function () use ($path, $callback) {
+        return \Amp\call(function () use ($path, $callback) {
             $start = microtime(true);
             $process = yield $this->startProcess($path);
 
             $stdout = $process->getStdout();
+
             $this->feedCallback($stdout, $callback);
 
             $exitCode = yield $process->join();
             $stop = microtime(true);
-            $this->updateDateReference();
             $this->logger->debug(sprintf(
                 'Find process "%s" done in %s seconds',
                 $process->getCommand(),
@@ -79,10 +80,12 @@ class FindWatcher implements Watcher
                 return;
             }
 
-            throw new RuntimeException(sprintf(
-                'Process "%s" exited with error code %s',
+            $stderr = \Amp\Promise\wait($process->getStderr()->read());
+            $this->logger->error(sprintf(
+                'Process "%s" exited with error code %s: %s',
                 $process->getCommand(),
-                $exitCode
+                $exitCode,
+                $stderr
             ));
         });
     }
@@ -100,10 +103,10 @@ class FindWatcher implements Watcher
             $process = new Process([
                 'find',
                 $path,
+                '-mindepth',
+                '1',
                 '-newermt',
                 $this->lastUpdate->format('Y-m-d H:i:s.u'),
-                '-mindepth',
-                '1'
             ]);
 
             $pid = yield $process->start();
@@ -119,7 +122,7 @@ class FindWatcher implements Watcher
         });
     }
 
-    private function updateDateReference()
+    private function updateDateReference(): void
     {
         $this->lastUpdate = new DateTimeImmutable();
     }

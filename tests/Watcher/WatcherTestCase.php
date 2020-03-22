@@ -5,6 +5,7 @@ namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 use Amp\Delayed;
 use Amp\Loop;
 use Amp\Loop\DriverFactory;
+use Amp\Promise;
 use Closure;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
@@ -32,21 +33,22 @@ abstract class WatcherTestCase extends IntegrationTestCase
         };
     }
 
-    protected function runLoop(array $paths, Closure $plan): array
+    protected function monitor(array $paths, Closure $plan): Promise
     {
-        $watcher = $this->createWatcher();
-        $modifications = [];
-        $watcher->monitor($paths, function (ModifiedFile $modification) use (&$modifications) {
-            $modifications[] = $modification;
-        });
-        
-        Loop::run(function () use ($plan) {
+        return \Amp\call(function () use ($paths, $plan) {
+            $watcher = $this->createWatcher();
+            $modifications = [];
+            $watcher->monitor($paths, function (ModifiedFile $modification) use (&$modifications) {
+                $modifications[] = $modification;
+            });
+            
             $generator = $plan();
+
             yield from $generator;
             Loop::stop();
-        });
 
-        return $modifications;
+            return $modifications;
+        });
     }
 
     abstract protected function createWatcher(): Watcher;

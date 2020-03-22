@@ -22,9 +22,9 @@ class InotifyWatcherTest extends WatcherTestCase
     /**
      * @dataProvider provideMonitors
      */
-    public function testMonitors(Closure $plan, array $expectedModifications): void
+    public function testMonitors(Closure $plan, array $expectedModifications): Generator
     {
-        $modifications = $this->runLoop([
+        $modifications = yield $this->monitor([
             $this->workspace()->path()
         ], $plan);
 
@@ -75,12 +75,12 @@ class InotifyWatcherTest extends WatcherTestCase
         ];
     }
 
-    public function testMultiplePaths(): void
+    public function testMultiplePaths(): Generator
     {
         $this->workspace()->mkdir('foobar');
         $this->workspace()->mkdir('barfoo');
 
-        $modifications = $this->runLoop([
+        $modifications = yield $this->monitor([
             $this->workspace()->path('barfoo'),
             $this->workspace()->path('foobar'),
         ], function () {

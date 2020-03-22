@@ -14,34 +14,36 @@ use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 
 class FindWatcherTest extends WatcherTestCase
 {
+    const PLAN_DELAY = 100;
+
     protected function createWatcher(): Watcher
     {
-        return new FindWatcher(100, $this->createLogger());
+        return new FindWatcher(50, $this->createLogger());
     }
 
-    public function testDoesNotPickFilesExistingWhenStarted(): void
+    public function testDoesNotPickFilesExistingWhenStarted(): Generator
     {
         $this->workspace()->put('foobar', '');
 
-        $modifications = $this->runLoop([
+        $modifications = yield $this->monitor([
             $this->workspace()->path(),
         ], function () {
-            yield new Delayed(50);
+            yield new Delayed(self::PLAN_DELAY);
         });
 
         $this->assertEquals([], $modifications);
     }
 
-    public function testPicksModifiedFile(): void
+    public function testPicksModifiedFile(): Generator
     {
         $this->workspace()->put('foobar', '');
 
-        $modifications = $this->runLoop([
+        $modifications = yield $this->monitor([
             $this->workspace()->path(),
         ], function () {
-            yield new Delayed(100);
+            yield new Delayed(self::PLAN_DELAY);
             $this->workspace()->put('foobar', '');
-            yield new Delayed(100);
+            yield new Delayed(self::PLAN_DELAY);
         });
 
         $this->assertEquals([
@@ -49,14 +51,14 @@ class FindWatcherTest extends WatcherTestCase
         ], $modifications);
     }
 
-    public function testPicksNewFile(): void
+    public function testPicksNewFile(): Generator
     {
-        $modifications = $this->runLoop([
+        $modifications = yield $this->monitor([
             $this->workspace()->path(),
         ], function () {
-            yield new Delayed(100);
+            yield new Delayed(self::PLAN_DELAY);
             $this->workspace()->put('barfoo', '');
-            yield new Delayed(100);
+            yield new Delayed(self::PLAN_DELAY);
         });
 
         $this->assertEquals([
@@ -64,14 +66,14 @@ class FindWatcherTest extends WatcherTestCase
         ], $modifications);
     }
 
-    public function testPicksNewFolder(): void
+    public function testPicksNewFolder(): Generator
     {
-        $modifications = $this->runLoop([
+        $modifications = yield $this->monitor([
             $this->workspace()->path(),
         ], function () {
-            yield new Delayed(100);
+            yield new Delayed(self::PLAN_DELAY);
             mkdir($this->workspace()->path('barfoo'));
-            yield new Delayed(100);
+            yield new Delayed(self::PLAN_DELAY);
         });
 
         $this->assertEquals([
@@ -79,19 +81,19 @@ class FindWatcherTest extends WatcherTestCase
         ], $modifications);
     }
 
-    public function testMultiplePaths(): void
+    public function testMultiplePaths(): Generator
     {
         $this->workspace()->mkdir('foobar');
         $this->workspace()->mkdir('barfoo');
 
-        $modifications = $this->runLoop([
+        $modifications = yield $this->monitor([
             $this->workspace()->path('barfoo'),
             $this->workspace()->path('foobar'),
         ], function () {
-            yield new Delayed(200);
+            yield new Delayed(self::PLAN_DELAY);
             $this->workspace()->put('barfoo/foobar', '');
             $this->workspace()->put('foobar/barfoo', '');
-            yield new Delayed(200);
+            yield new Delayed(self::PLAN_DELAY);
         });
 
         $this->assertEquals([
