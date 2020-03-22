@@ -12,6 +12,7 @@ cache:
         - $HOME/.composer/cache
 
 before_script:
+    - sudo apt-get -y install inotify-tools
     - composer install
 
 script:
