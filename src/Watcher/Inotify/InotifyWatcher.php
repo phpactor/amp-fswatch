@@ -37,7 +37,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function monitor(array $paths, callable $callback): WatcherProcess
+    public function watch(array $paths, callable $callback): WatcherProcess
     {
         \Amp\asyncCall(function () use ($paths, $callback) {
             $this->process = yield $this->startProcess($paths);

@@ -2,7 +2,6 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 
-use Amp\Loop;
 use Amp\Promise;
 use Closure;
 use Phpactor\AmpFsWatch\ModifiedFile;
@@ -34,7 +33,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return \Amp\call(function () use ($paths, $plan) {
             $watcher = $this->createWatcher();
             $modifications = [];
-            $process = $watcher->monitor($paths, function (ModifiedFile $modification) use (&$modifications) {
+            $process = $watcher->watch($paths, function (ModifiedFile $modification) use (&$modifications) {
                 $modifications[] = $modification;
             });
             

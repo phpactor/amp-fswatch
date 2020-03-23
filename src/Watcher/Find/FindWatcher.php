@@ -48,7 +48,7 @@ class FindWatcher implements Watcher, WatcherProcess
         $this->pollInterval = $pollInterval;
     }
 
-    public function monitor(array $paths, callable $callback): WatcherProcess
+    public function watch(array $paths, callable $callback): WatcherProcess
     {
         $this->logger->info(sprintf('Polling at interval of "%s" milliseconds for changes paths "%s"', $this->pollInterval, implode('", "', $paths)));
 
@@ -58,7 +58,7 @@ class FindWatcher implements Watcher, WatcherProcess
             while ($this->running) {
                 $searches = [];
                 foreach ($paths as $path) {
-                     $searches[] = $this->search($path, $callback);
+                    $searches[] = $this->search($path, $callback);
                 }
                 yield \Amp\Promise\all($searches);
                 $this->updateDateReference();

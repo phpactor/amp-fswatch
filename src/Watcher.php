@@ -7,5 +7,5 @@ interface Watcher
     /**
      * @param array<string> $paths
      */
-    public function monitor(array $paths, callable $callback): WatcherProcess;
+    public function watch(array $paths, callable $callback): WatcherProcess;
 }
