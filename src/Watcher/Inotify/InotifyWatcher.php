@@ -7,10 +7,11 @@ use Amp\Promise;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-class InotifyWatcher implements Watcher
+class InotifyWatcher implements Watcher, WatcherProcess
 {
     /**
      * @var LoggerInterface
@@ -36,7 +37,7 @@ class InotifyWatcher implements Watcher
     /**
      * {@inheritDoc}
      */
-    public function monitor(array $paths, callable $callback): void
+    public function monitor(array $paths, callable $callback): WatcherProcess
     {
         \Amp\asyncCall(function () use ($paths, $callback) {
             $this->process = yield $this->startProcess($paths);
@@ -59,6 +60,8 @@ class InotifyWatcher implements Watcher
                 $stderr
             ));
         });
+
+        return $this;
     }
 
     public function stop(): void

@@ -34,14 +34,14 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return \Amp\call(function () use ($paths, $plan) {
             $watcher = $this->createWatcher();
             $modifications = [];
-            $watcher->monitor($paths, function (ModifiedFile $modification) use (&$modifications) {
+            $process = $watcher->monitor($paths, function (ModifiedFile $modification) use (&$modifications) {
                 $modifications[] = $modification;
             });
             
             $generator = $plan();
 
             yield from $generator;
-            $watcher->stop();
+            $process->stop();
 
             return $modifications;
         });

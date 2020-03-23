@@ -10,10 +10,11 @@ use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-class FindWatcher implements Watcher
+class FindWatcher implements Watcher, WatcherProcess
 {
     /**
      * @var LineParser
@@ -47,7 +48,7 @@ class FindWatcher implements Watcher
         $this->pollInterval = $pollInterval;
     }
 
-    public function monitor(array $paths, callable $callback): void
+    public function monitor(array $paths, callable $callback): WatcherProcess
     {
         $this->logger->info(sprintf('Polling at interval of "%s" milliseconds for changes paths "%s"', $this->pollInterval, implode('", "', $paths)));
 
@@ -64,6 +65,8 @@ class FindWatcher implements Watcher
                 yield new Delayed($this->pollInterval);
             }
         });
+
+        return $this;
     }
 
     public function stop(): void
