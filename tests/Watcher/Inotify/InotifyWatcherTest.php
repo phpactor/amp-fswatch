@@ -95,4 +95,10 @@ class InotifyWatcherTest extends WatcherTestCase
             new ModifiedFile($this->workspace()->path('foobar/barfoo'), ModifiedFile::TYPE_FILE),
         ], $modifications);
     }
+
+    public function testIsSupported(): void
+    {
+        $watcher = $this->createWatcher();
+        self::assertTrue($watcher->isSupported());
+    }
 }

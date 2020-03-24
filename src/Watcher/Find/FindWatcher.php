@@ -74,6 +74,10 @@ class FindWatcher implements Watcher, WatcherProcess
         $this->running = false;
     }
 
+    public function isSupported(): bool
+    {
+    }
+
     private function search(string $path, callable $callback): Promise
     {
         return \Amp\call(function () use ($path, $callback) {

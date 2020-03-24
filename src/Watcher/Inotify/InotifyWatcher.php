@@ -4,6 +4,7 @@ namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
 use Amp\Process\Process;
 use Amp\Promise;
+use Phpactor\AmpFsWatch\CommandValidator\CommandDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\Watcher;
@@ -13,6 +14,8 @@ use RuntimeException;
 
 class InotifyWatcher implements Watcher, WatcherProcess
 {
+    const INOTIFY_CMD = 'inotifywait';
+
     /**
      * @var LoggerInterface
      */
@@ -28,10 +31,27 @@ class InotifyWatcher implements Watcher, WatcherProcess
      */
     private $process;
 
-    public function __construct(LoggerInterface $logger, ?LineParser $parser = null)
+    /**
+     * @var string
+     */
+    private $phpOs;
+
+    /**
+     * @var CommandDetector
+     */
+    private $commandDetector;
+
+    public function __construct(
+        LoggerInterface $logger,
+        ?CommandDetector $commandDetector = null,
+        ?LineParser $parser = null,
+        ?string $phpOs = null
+    )
     {
         $this->logger = $logger;
         $this->parser = $parser ?: new LineParser();
+        $this->phpOs = $phpOs ?: PHP_OS;
+        $this->commandDetector = $commandDetector ?: new CommandDetector();
     }
 
     /**
@@ -81,7 +101,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
     {
         return \Amp\call(function () use ($paths) {
             $process = new Process(array_merge([
-                'inotifywait',
+                self::INOTIFY_CMD,
                 '-r',
                 '-emodify,create,delete',
                 '--monitor',
@@ -119,5 +139,14 @@ class InotifyWatcher implements Watcher, WatcherProcess
 
             $callback($builder->build());
         });
+    }
+
+    public function isSupported(): bool
+    {
+        if ($this->phpOs !== 'Linux') {
+            return false;
+        }
+
+        return $this->commandDetector->commandExists(self::INOTIFY_CMD);
     }
 }
