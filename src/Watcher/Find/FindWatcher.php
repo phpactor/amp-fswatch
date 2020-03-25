@@ -9,6 +9,7 @@ use Amp\Process\ProcessInputStream;
 use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Parser\LineParser;
+use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
@@ -41,14 +42,21 @@ class FindWatcher implements Watcher, WatcherProcess
      */
     private $running = true;
 
+    /**
+     * @var CommandDetector
+     */
+    private $commandDetector;
+
     public function __construct(
         int $pollInterval,
         LoggerInterface $logger,
+        CommandDetector $commandDetector,
         ?LineParser $lineParser = null
     ) {
         $this->lineParser = $lineParser ?: new LineParser();
         $this->logger = $logger;
         $this->pollInterval = $pollInterval;
+        $this->commandDetector = $commandDetector;
     }
 
     public function watch(array $paths, callable $callback): WatcherProcess
@@ -79,7 +87,7 @@ class FindWatcher implements Watcher, WatcherProcess
 
     public function isSupported(): bool
     {
-        return true;
+        return $this->commandDetector->commandExists('find');
     }
 
     private function search(string $path, callable $callback): Promise
