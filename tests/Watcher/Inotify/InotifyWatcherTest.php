@@ -4,6 +4,7 @@ namespace Phpactor\AmpFsWatcher\Tests\Watcher\Inotify;
 
 use Generator;
 use Phpactor\AmpFsWatch\CommandValidator\CommandDetector;
+use Phpactor\AmpFsWatch\CommandValidator\OsValidator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Amp\Delayed;
 use Closure;
@@ -19,20 +20,26 @@ class InotifyWatcherTest extends WatcherTestCase
      */
     private $commandDetector;
 
+    /**
+     * @var ObjectProphecy
+     */
+    private $osValidator;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->commandDetector = $this->prophesize(CommandDetector::class);
         $this->commandDetector->commandExists('inotifywait')->willReturn(true);
+        $this->osValidator = $this->prophesize(OsValidator::class);
+        $this->osValidator->isLinux()->willReturn(true);
     }
 
-    protected function createWatcher(?string $phpOs = 'Linux'): Watcher
+    protected function createWatcher(): Watcher
     {
         return new InotifyWatcher(
             $this->createLogger(),
             $this->commandDetector->reveal(),
-            null,
-            $phpOs
+            $this->osValidator->reveal()
         );
     }
 
@@ -115,21 +122,23 @@ class InotifyWatcherTest extends WatcherTestCase
 
     public function testIsSupported(): void
     {
-        $watcher = $this->createWatcher('Linux');
+        $watcher = $this->createWatcher();
         $this->commandDetector->commandExists('inotifywait')->willReturn(true);
         self::assertTrue($watcher->isSupported());
     }
 
     public function testNotSupportedOnNonLinux(): void
     {
-        $watcher = $this->createWatcher('WIN');
+        $watcher = $this->createWatcher();
+        $this->osValidator->isLinux()->willReturn(false);
         $this->commandDetector->commandExists('inotifywait')->willReturn(true);
         self::assertFalse($watcher->isSupported());
     }
 
     public function testNotSupportedIfCommandNotFound(): void
     {
-        $watcher = $this->createWatcher('Linux');
+        $watcher = $this->createWatcher();
+        $this->osValidator->isLinux()->willReturn(true);
         $this->commandDetector->commandExists('inotifywait')->willReturn(false);
         self::assertFalse($watcher->isSupported());
     }
