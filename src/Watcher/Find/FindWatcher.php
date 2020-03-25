@@ -41,8 +41,11 @@ class FindWatcher implements Watcher, WatcherProcess
      */
     private $running = true;
 
-    public function __construct(int $pollInterval, LoggerInterface $logger, ?LineParser $lineParser = null)
-    {
+    public function __construct(
+        int $pollInterval,
+        LoggerInterface $logger,
+        ?LineParser $lineParser = null
+    ) {
         $this->lineParser = $lineParser ?: new LineParser();
         $this->logger = $logger;
         $this->pollInterval = $pollInterval;
@@ -76,6 +79,7 @@ class FindWatcher implements Watcher, WatcherProcess
 
     public function isSupported(): bool
     {
+        return true;
     }
 
     private function search(string $path, callable $callback): Promise

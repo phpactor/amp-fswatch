@@ -3,8 +3,8 @@
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Inotify;
 
 use Generator;
-use Phpactor\AmpFsWatch\CommandValidator\CommandDetector;
-use Phpactor\AmpFsWatch\CommandValidator\OsValidator;
+use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
+use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Amp\Delayed;
 use Closure;
@@ -30,7 +30,7 @@ class InotifyWatcherTest extends WatcherTestCase
         parent::setUp();
         $this->commandDetector = $this->prophesize(CommandDetector::class);
         $this->commandDetector->commandExists('inotifywait')->willReturn(true);
-        $this->osValidator = $this->prophesize(OsValidator::class);
+        $this->osValidator = $this->prophesize(OsDetector::class);
         $this->osValidator->isLinux()->willReturn(true);
     }
 

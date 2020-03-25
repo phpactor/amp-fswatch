@@ -1,8 +1,8 @@
 <?php
 
-namespace Phpactor\AmpFsWatch\CommandValidator;
+namespace Phpactor\AmpFsWatch\SystemDetector;
 
-class OsValidator
+class OsDetector
 {
     /**
      * @var string

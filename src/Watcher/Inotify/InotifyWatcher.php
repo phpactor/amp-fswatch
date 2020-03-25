@@ -4,8 +4,8 @@ namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
 use Amp\Process\Process;
 use Amp\Promise;
-use Phpactor\AmpFsWatch\CommandValidator\CommandDetector;
-use Phpactor\AmpFsWatch\CommandValidator\OsValidator;
+use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
+use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\Watcher;
@@ -38,21 +38,20 @@ class InotifyWatcher implements Watcher, WatcherProcess
     private $commandDetector;
 
     /**
-     * @var OsValidator
+     * @var OsDetector
      */
-    private $osValidator;
+    private $osDetector;
 
     public function __construct(
         LoggerInterface $logger,
         ?CommandDetector $commandDetector = null,
-        ?OsValidator $osValidator,
+        ?OsDetector $osDetector,
         ?LineParser $parser = null
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->parser = $parser ?: new LineParser();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
-        $this->osValidator = $osValidator ?: new OsValidator(PHP_OS);
+        $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
     }
 
     /**
@@ -144,7 +143,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
 
     public function isSupported(): bool
     {
-        if (!$this->osValidator->isLinux()) {
+        if (!$this->osDetector->isLinux()) {
             return false;
         }
 

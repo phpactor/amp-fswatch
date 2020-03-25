@@ -1,9 +1,8 @@
 <?php
 
-namespace Phpactor\AmpFsWatch\CommandValidator;
+namespace Phpactor\AmpFsWatch\SystemDetector;
 
 use Amp\Process\Process;
-use RuntimeException;
 
 class CommandDetector
 {
