@@ -3,19 +3,36 @@
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Inotify;
 
 use Generator;
+use Phpactor\AmpFsWatch\CommandValidator\CommandDetector;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Amp\Delayed;
 use Closure;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class InotifyWatcherTest extends WatcherTestCase
 {
-    protected function createWatcher(): Watcher
+    /**
+     * @var ObjectProphecy
+     */
+    private $commandDetector;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->commandDetector = $this->prophesize(CommandDetector::class);
+        $this->commandDetector->commandExists('inotifywait')->willReturn(true);
+    }
+
+    protected function createWatcher(?string $phpOs = 'Linux'): Watcher
     {
         return new InotifyWatcher(
-            $this->createLogger()
+            $this->createLogger(),
+            $this->commandDetector->reveal(),
+            null,
+            $phpOs
         );
     }
 
@@ -98,7 +115,22 @@ class InotifyWatcherTest extends WatcherTestCase
 
     public function testIsSupported(): void
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher('Linux');
+        $this->commandDetector->commandExists('inotifywait')->willReturn(true);
         self::assertTrue($watcher->isSupported());
+    }
+
+    public function testNotSupportedOnNonLinux(): void
+    {
+        $watcher = $this->createWatcher('WIN');
+        $this->commandDetector->commandExists('inotifywait')->willReturn(true);
+        self::assertFalse($watcher->isSupported());
+    }
+
+    public function testNotSupportedIfCommandNotFound(): void
+    {
+        $watcher = $this->createWatcher('Linux');
+        $this->commandDetector->commandExists('inotifywait')->willReturn(false);
+        self::assertFalse($watcher->isSupported());
     }
 }
