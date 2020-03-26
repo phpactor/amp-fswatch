@@ -46,7 +46,7 @@ class FallbackWatcher implements Watcher
         }
 
         $this->logger->warning(sprintf(
-            'Could not find a file watching strategy, tried "%s" not watching any files',
+            'No supported watchers, tried "%s".',
             implode('", "', $watcherClasses)
         ));
 
