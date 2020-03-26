@@ -45,7 +45,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
     public function __construct(
         LoggerInterface $logger,
         ?CommandDetector $commandDetector = null,
-        ?OsDetector $osDetector,
+        ?OsDetector $osDetector = null,
         ?LineParser $parser = null
     ) {
         $this->logger = $logger;

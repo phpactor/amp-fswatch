@@ -38,9 +38,15 @@ class FallbackWatcher implements Watcher
         $watcherClasses = [];
         foreach ($this->watchers as $watcher) {
             $watcherClasses[] = get_class($watcher);
+
             if (!$watcher->isSupported()) {
                 continue;
             }
+
+            $this->logger->notice(sprintf(
+                'Watching files with "%s"',
+                get_class($watcher)
+            ));
 
             return $watcher->watch($paths, $callback);
         }

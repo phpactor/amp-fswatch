@@ -50,13 +50,13 @@ class FindWatcher implements Watcher, WatcherProcess
     public function __construct(
         int $pollInterval,
         LoggerInterface $logger,
-        CommandDetector $commandDetector,
+        ?CommandDetector $commandDetector = null,
         ?LineParser $lineParser = null
     ) {
         $this->lineParser = $lineParser ?: new LineParser();
         $this->logger = $logger;
         $this->pollInterval = $pollInterval;
-        $this->commandDetector = $commandDetector;
+        $this->commandDetector = $commandDetector ?: new CommandDetector();
     }
 
     public function watch(array $paths, callable $callback): WatcherProcess
