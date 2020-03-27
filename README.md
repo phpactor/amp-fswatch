@@ -23,8 +23,16 @@ use Psr\Log\NullLogger;
 $logger = new NullLogger();
 
 $watcher = new InotifyWatcher($logger);
-$process = $watcher->watch([ 'src' ], function (ModifiedFile $file) {
-    // do something
+$process = $watcher->watch([ 'src' ]);
+
+\Amp\call(function () use ($process) {
+    while (null !== $modifiedFile = $process->wait()) {
+
+        assert($modifiedFile instanceof ModifiedFile);
+
+        $modifiedFile->path(); // Full path to file
+        $modifiedFile->type(); // ModifiedFile::TYPE_FILE or ModifiedFile::TYPE_FOLDER
+    }
 });
 
 Loop::run();
