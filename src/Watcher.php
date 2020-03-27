@@ -7,7 +7,7 @@ interface Watcher
     /**
      * @param array<string> $paths
      */
-    public function watch(array $paths, callable $callback): WatcherProcess;
+    public function watch(array $paths): WatcherProcess;
 
     public function isSupported(): bool;
 }

@@ -15,6 +15,8 @@ use Prophecy\Prophecy\ObjectProphecy;
 
 class InotifyWatcherTest extends WatcherTestCase
 {
+    const DELAY_TIME = 100;
+
     /**
      * @var ObjectProphecy
      */
@@ -59,27 +61,24 @@ class InotifyWatcherTest extends WatcherTestCase
     {
         yield 'multiple single files' => [
             function () {
-                yield new Delayed(10);
+                yield new Delayed(self::DELAY_TIME);
                 $this->workspace()->put('foobar', '');
                 $this->workspace()->put('foobar', '');
-                yield new Delayed(10);
+                yield new Delayed(self::DELAY_TIME);
                 $this->workspace()->put('foobar', '');
                 $this->workspace()->put('foobar', '');
-                yield new Delayed(10);
+                yield new Delayed(self::DELAY_TIME);
             },
             [
-                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
-                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
-                new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
                 new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
             ]
         ];
 
         yield 'directories' => [
             function () {
-                yield new Delayed(10);
+                yield new Delayed(self::DELAY_TIME);
                 mkdir($this->workspace()->path('barfoo'));
-                yield new Delayed(10);
+                yield new Delayed(self::DELAY_TIME);
             },
             [
                 new ModifiedFile($this->workspace()->path('barfoo'), ModifiedFile::TYPE_FOLDER),
@@ -89,9 +88,9 @@ class InotifyWatcherTest extends WatcherTestCase
         yield 'file removal' => [
             function () {
                 $this->workspace()->put('foobar', 'asd');
-                yield new Delayed(10);
+                yield new Delayed(self::DELAY_TIME);
                 unlink($this->workspace()->path('foobar'));
-                yield new Delayed(10);
+                yield new Delayed(self::DELAY_TIME);
             },
             [
                 new ModifiedFile($this->workspace()->path('foobar'), ModifiedFile::TYPE_FILE),
@@ -108,10 +107,10 @@ class InotifyWatcherTest extends WatcherTestCase
             $this->workspace()->path('barfoo'),
             $this->workspace()->path('foobar'),
         ], function () {
-            yield new Delayed(200);
+            yield new Delayed(self::DELAY_TIME);
             $this->workspace()->put('barfoo/foobar', '');
             $this->workspace()->put('foobar/barfoo', '');
-            yield new Delayed(200);
+            yield new Delayed(self::DELAY_TIME);
         });
 
         $this->assertEquals([

@@ -5,10 +5,12 @@ namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 use Amp\Promise;
 use Closure;
 use Phpactor\AmpFsWatch\ModifiedFile;
+use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\Watcher;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
+use Throwable;
 
 abstract class WatcherTestCase extends IntegrationTestCase
 {
@@ -33,16 +35,22 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return \Amp\call(function () use ($paths, $plan) {
             $watcher = $this->createWatcher();
             $modifications = [];
-            $process = $watcher->watch($paths, function (ModifiedFile $modification) use (&$modifications) {
-                $modifications[] = $modification;
-            });
+            $process = $watcher->watch($paths);
+            $results = new ModifiedFileStack();
             
+            \Amp\asyncCall(function () use ($process, &$results) {
+                while (null !== $file = yield $process->wait()) {
+                    $results->append($file);
+                }
+            });
+
             $generator = $plan();
 
             yield from $generator;
+
             $process->stop();
 
-            return $modifications;
+            return $results->compress()->toArray();
         });
     }
 
