@@ -8,6 +8,7 @@ use Amp\Promise;
 use Amp\Process\ProcessInputStream;
 use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
+use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
@@ -47,6 +48,11 @@ class FindWatcher implements Watcher, WatcherProcess
      */
     private $commandDetector;
 
+    /**
+     * @var ModifiedFileStack
+     */
+    private $stack;
+
     public function __construct(
         int $pollInterval,
         LoggerInterface $logger,
@@ -57,19 +63,25 @@ class FindWatcher implements Watcher, WatcherProcess
         $this->logger = $logger;
         $this->pollInterval = $pollInterval;
         $this->commandDetector = $commandDetector ?: new CommandDetector();
+        $this->stack = new ModifiedFileStack();
     }
 
-    public function watch(array $paths, callable $callback): WatcherProcess
+    public function watch(array $paths): WatcherProcess
     {
-        $this->logger->info(sprintf('Polling at interval of "%s" milliseconds for changes paths "%s"', $this->pollInterval, implode('", "', $paths)));
+        $this->logger->info(sprintf(
+            'Polling at interval of "%s" milliseconds for changes paths "%s"',
+            $this->pollInterval,
+            implode('", "', $paths)
+        ));
 
         $this->updateDateReference();
+        $this->running = true;
 
-        \Amp\asyncCall(function () use ($paths, $callback) {
+        \Amp\asyncCall(function () use ($paths) {
             while ($this->running) {
                 $searches = [];
                 foreach ($paths as $path) {
-                    $searches[] = $this->search($path, $callback);
+                    $searches[] = $this->search($path);
                 }
                 yield \Amp\Promise\all($searches);
                 $this->updateDateReference();
@@ -78,6 +90,21 @@ class FindWatcher implements Watcher, WatcherProcess
         });
 
         return $this;
+    }
+
+    public function wait(): Promise
+    {
+        return \Amp\call(function () {
+            while ($this->running) {
+                $this->stack = $this->stack->compress();
+
+                if ($next = $this->stack->unshift()) {
+                    return $next;
+                }
+
+                yield new Delayed(1);
+            }
+        });
     }
 
     public function stop(): void
@@ -90,18 +117,17 @@ class FindWatcher implements Watcher, WatcherProcess
         return $this->commandDetector->commandExists('find');
     }
 
-    private function search(string $path, callable $callback): Promise
+    private function search(string $path): Promise
     {
-        return \Amp\call(function () use ($path, $callback) {
+        return \Amp\call(function () use ($path) {
             $start = microtime(true);
             $process = yield $this->startProcess($path);
 
-            $stdout = $process->getStdout();
-
-            $this->feedCallback($stdout, $callback);
+            $this->feedStack($process->getStdout());
 
             $exitCode = yield $process->join();
             $stop = microtime(true);
+
             $this->logger->debug(sprintf(
                 'Find process "%s" done in %s seconds',
                 $process->getCommand(),
@@ -112,7 +138,7 @@ class FindWatcher implements Watcher, WatcherProcess
                 return;
             }
 
-            $stderr = \Amp\Promise\wait($process->getStderr()->read());
+            $stderr = yield $process->getStderr()->read();
             $this->logger->error(sprintf(
                 'Process "%s" exited with error code %s: %s',
                 $process->getCommand(),
@@ -122,10 +148,10 @@ class FindWatcher implements Watcher, WatcherProcess
         });
     }
 
-    private function feedCallback(ProcessInputStream $stream, callable $callback): void
+    private function feedStack(ProcessInputStream $stream): void
     {
-        $this->lineParser->stream($stream, function (string $line) use ($callback) {
-            $callback(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
+        $this->lineParser->stream($stream, function (string $line) {
+            $this->stack->append(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
         });
     }
 

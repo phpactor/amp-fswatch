@@ -2,8 +2,10 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
+use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
+use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
@@ -16,6 +18,8 @@ use RuntimeException;
 class InotifyWatcher implements Watcher, WatcherProcess
 {
     const INOTIFY_CMD = 'inotifywait';
+    const POLL_TIME = 1;
+
 
     /**
      * @var LoggerInterface
@@ -28,7 +32,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
     private $parser;
 
     /**
-     * @var Process
+     * @var Process|null
      */
     private $process;
 
@@ -42,6 +46,21 @@ class InotifyWatcher implements Watcher, WatcherProcess
      */
     private $osDetector;
 
+    /**
+     * @var ModifiedFileStack
+     */
+    private $stack;
+
+    /**
+     * @var bool
+     */
+    private $running;
+
+    /**
+     * @var array<string>
+     */
+    private $paths;
+
     public function __construct(
         LoggerInterface $logger,
         ?CommandDetector $commandDetector = null,
@@ -52,36 +71,44 @@ class InotifyWatcher implements Watcher, WatcherProcess
         $this->parser = $parser ?: new LineParser();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
+        $this->stack = new ModifiedFileStack();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function watch(array $paths, callable $callback): WatcherProcess
+    public function watch(array $paths): WatcherProcess
     {
-        \Amp\asyncCall(function () use ($paths, $callback) {
-            $this->process = yield $this->startProcess($paths);
-            $this->feedCallback($this->process, $callback);
+        $this->paths = $paths;
 
-            $stderr = '';
-            $stderrStream = $this->process->getStderr();
-            $exitCode = yield $this->process->join();
-
-            if ($exitCode === 0) {
-                return;
-            }
-
-            $stderr = \Amp\Promise\wait($this->process->getStderr()->read());
-
-            throw new RuntimeException(sprintf(
-                'Process "%s" exited with error code %s: %s',
-                $this->process->getCommand(),
-                $exitCode,
-                $stderr
-            ));
+        \Amp\asyncCall(function () {
+            $this->process = yield $this->startProcess($this->paths);
+            $this->running = true;
+            $this->feedStack($this->process);
         });
 
         return $this;
+    }
+
+    public function wait(): Promise
+    {
+        return \Amp\call(function () {
+            while (null === $this->process) {
+                yield new Delayed(self::POLL_TIME);
+            }
+
+            while ($this->running) {
+                $this->stack = $this->stack->compress();
+
+                if ($next = $this->stack->unshift()) {
+                    return $next;
+                }
+
+                yield new Delayed(self::POLL_TIME);
+            }
+
+            return null;
+        });
     }
 
     public function stop(): void
@@ -91,6 +118,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
                 'Inotifywait process was not started, cannot call stop()'
             );
         }
+        $this->running = false;
         $this->process->signal(SIGTERM);
     }
 
@@ -122,9 +150,9 @@ class InotifyWatcher implements Watcher, WatcherProcess
         });
     }
 
-    private function feedCallback(Process $process, callable $callback): void
+    private function feedStack(Process $process): void
     {
-        $this->parser->stream($process->getStdout(), function (string $line) use ($callback) {
+        $this->parser->stream($process->getStdout(), function (string $line) {
             $this->logger->debug(sprintf('EVENT: %s', $line));
             $event = InotifyEvent::createFromCsv($line);
 
@@ -137,7 +165,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
                 $builder = $builder->asFolder();
             }
 
-            $callback($builder->build());
+            $this->stack->append($builder->build());
         });
     }
 

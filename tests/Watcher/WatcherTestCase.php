@@ -2,19 +2,143 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 
-use Amp\Promise;
-use Closure;
+use Amp\Delayed;
+use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
 
 abstract class WatcherTestCase extends IntegrationTestCase
 {
+    abstract protected function createWatcher(): Watcher;
+
+    public function testSingleFileChange(): Generator
+    {
+        $process = $this->startProcess();
+        yield $this->delay();
+        $this->workspace()->put('foobar', '');
+        yield $this->delay();
+
+        self::assertEquals(
+            new ModifiedFile(
+                $this->workspace()->path('foobar'),
+                ModifiedFile::TYPE_FILE
+            ),
+            yield $process->wait()
+        );
+
+        $process->stop();
+    }
+
+    public function testMultipleSameFile(): Generator
+    {
+        $process = $this->startProcess();
+
+        yield $this->delay();
+        $this->workspace()->put('foobar', '');
+        $this->workspace()->put('foobar', 'foobar');
+        yield $this->delay();
+
+        self::assertEquals(
+            new ModifiedFile(
+                $this->workspace()->path('foobar'),
+                ModifiedFile::TYPE_FILE
+            ),
+            yield $process->wait()
+        );
+
+        $process->stop();
+    }
+
+    public function testDirectory(): Generator
+    {
+        $process = $this->startProcess();
+
+        yield $this->delay();
+        $this->workspace()->mkdir('foobar');
+        yield $this->delay();
+
+        self::assertEquals(
+            new ModifiedFile(
+                $this->workspace()->path('foobar'),
+                ModifiedFile::TYPE_FOLDER
+            ),
+            yield $process->wait()
+        );
+
+        $process->stop();
+    }
+
+    public function testRemoval(): Generator
+    {
+        $this->workspace()->put('foobar', '');
+
+        $process = $this->startProcess();
+
+        yield $this->delay();
+
+        unlink($this->workspace()->path('foobar'));
+
+        yield $this->delay();
+
+        self::assertEquals(
+            new ModifiedFile(
+                $this->workspace()->path('foobar'),
+                ModifiedFile::TYPE_FILE
+            ),
+            yield $process->wait()
+        );
+
+        $process->stop();
+    }
+
+    public function testMultiplePaths(): Generator
+    {
+        $this->workspace()->mkdir('foobar');
+        $this->workspace()->mkdir('barfoo');
+
+        $process = $this->startProcess([
+            $this->workspace()->path('barfoo'),
+            $this->workspace()->path('foobar'),
+        ]);
+
+        yield $this->delay();
+
+        $this->workspace()->put('barfoo/foobar', '');
+        $this->workspace()->put('foobar/barfoo', '');
+
+        yield $this->delay();
+
+        self::assertEquals(
+            new ModifiedFile(
+                $this->workspace()->path('barfoo/foobar'),
+                ModifiedFile::TYPE_FILE
+            ),
+            yield $process->wait()
+        );
+        self::assertEquals(
+            new ModifiedFile(
+                $this->workspace()->path('foobar/barfoo'),
+                ModifiedFile::TYPE_FILE
+            ),
+            yield $process->wait()
+        );
+
+        $process->stop();
+    }
+
+    protected function delay(): Delayed
+    {
+        return new Delayed(20);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->setTimeout(1000);
         $this->workspace()->reset();
     }
 
@@ -23,28 +147,18 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return new class extends AbstractLogger {
             public function log($level, $message, array $context = [])
             {
-                fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
+                //fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
         };
     }
 
-    protected function monitor(array $paths, Closure $plan): Promise
+    private function startProcess(?array $paths = []): WatcherProcess
     {
-        return \Amp\call(function () use ($paths, $plan) {
-            $watcher = $this->createWatcher();
-            $modifications = [];
-            $process = $watcher->watch($paths, function (ModifiedFile $modification) use (&$modifications) {
-                $modifications[] = $modification;
-            });
-            
-            $generator = $plan();
-
-            yield from $generator;
-            $process->stop();
-
-            return $modifications;
-        });
+        $paths = $paths ?: [ $this->workspace()->path() ];
+        ;
+        $watcher = $this->createWatcher();
+        return $watcher->watch($paths);
     }
 
-    abstract protected function createWatcher(): Watcher;
+    abstract public function testIsSupported(): void;
 }
