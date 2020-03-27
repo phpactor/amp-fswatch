@@ -49,6 +49,19 @@ $watcher = new InotifyWatcher($logger);
 // ...
 ```
 
+### Fswatch
+
+[FsWatch](https://github.com/emcrisostomo/fswatch) is a cross-platform
+(Linux,Mac,Windows) file watching utility which will automatically use the
+platforms native functionality when possible.
+
+```php
+use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
+
+$watcher = new FsWatchWatcher($logger);
+// ...
+```
+
 ### Find
 
 Use the POSIX `find` binary (Linux and Mac) to poll for file changes.
@@ -61,6 +74,7 @@ use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 $watcher = new FindWatcher(1000, $logger);
 // ...
 ```
+
 ### Fallback
 
 The fallback watcher will automatically select the first supported watcher

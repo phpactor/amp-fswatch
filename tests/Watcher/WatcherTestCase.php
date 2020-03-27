@@ -138,7 +138,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->setTimeout(1000);
+        $this->setTimeout(5000);
         $this->workspace()->reset();
     }
 
@@ -147,7 +147,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return new class extends AbstractLogger {
             public function log($level, $message, array $context = [])
             {
-                //fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
+                fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
         };
     }

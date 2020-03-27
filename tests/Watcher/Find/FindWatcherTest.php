@@ -21,6 +21,7 @@ class FindWatcherTest extends WatcherTestCase
     {
         $this->commandDetector = $this->prophesize(CommandDetector::class);
         $this->commandDetector->commandExists('find')->willReturn(true);
+
         return new FindWatcher(
             100,
             $this->createLogger(),
