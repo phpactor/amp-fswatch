@@ -2,6 +2,8 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\Null;
 
+use Amp\Promise;
+use Amp\Success;
 use Phpactor\AmpFsWatch\WatcherProcess;
 
 use Phpactor\AmpFsWatch\Watcher;
@@ -11,7 +13,7 @@ class NullWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function watch(array $paths, callable $callback): WatcherProcess
+    public function watch(array $paths): WatcherProcess
     {
         return $this;
     }
@@ -23,5 +25,10 @@ class NullWatcher implements Watcher, WatcherProcess
 
     public function stop(): void
     {
+    }
+
+    public function wait(): Promise
+    {
+        return new Success(null);
     }
 }

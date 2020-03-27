@@ -5,7 +5,6 @@ namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
-use Amp\Success;
 use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
@@ -16,9 +15,6 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class InotifyWatcher implements Watcher, WatcherProcess
 {
     const INOTIFY_CMD = 'inotifywait';
@@ -97,7 +93,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
     public function wait(): Promise
     {
         return \Amp\call(function () {
-            if (null === $this->process) {
+            while (null === $this->process) {
                 yield new Delayed(self::POLL_TIME);
             }
 

@@ -3,20 +3,15 @@
 namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 
 use Amp\Delayed;
-use Amp\Promise;
-use Closure;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
-use Throwable;
 
 abstract class WatcherTestCase extends IntegrationTestCase
-
 {
     abstract protected function createWatcher(): Watcher;
 
@@ -137,12 +132,13 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     protected function delay(): Delayed
     {
-        return new Delayed(10);
+        return new Delayed(20);
     }
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->setTimeout(1000);
         $this->workspace()->reset();
     }
 
@@ -158,7 +154,8 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     private function startProcess(?array $paths = []): WatcherProcess
     {
-        $paths = $paths ?: [ $this->workspace()->path() ];;
+        $paths = $paths ?: [ $this->workspace()->path() ];
+        ;
         $watcher = $this->createWatcher();
         return $watcher->watch($paths);
     }

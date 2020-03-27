@@ -2,15 +2,9 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Inotify;
 
-use Amp\Loop;
-use Generator;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
-use Phpactor\AmpFsWatch\ModifiedFile;
-use Amp\Delayed;
-use Closure;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\WatcherProcess;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 use Prophecy\Prophecy\ObjectProphecy;

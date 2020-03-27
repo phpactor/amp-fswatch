@@ -33,7 +33,7 @@ class FallbackWatcher implements Watcher
     /**
      * {@inheritDoc}
      */
-    public function watch(array $paths, callable $callback): WatcherProcess
+    public function watch(array $paths): WatcherProcess
     {
         $watcherClasses = [];
         foreach ($this->watchers as $watcher) {
@@ -48,7 +48,7 @@ class FallbackWatcher implements Watcher
                 get_class($watcher)
             ));
 
-            return $watcher->watch($paths, $callback);
+            return $watcher->watch($paths);
         }
 
         $this->logger->warning(sprintf(

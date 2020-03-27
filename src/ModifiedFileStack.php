@@ -36,9 +36,4 @@ class ModifiedFileStack
     {
         return array_shift($this->stack);
     }
-
-    public function toArray(): array
-    {
-        return $this->stack;
-    }
 }
