@@ -6,6 +6,7 @@ use Amp\Success;
 use Generator;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 
@@ -18,12 +19,15 @@ class FindWatcherTest extends WatcherTestCase
      */
     private $commandDetector;
 
-    protected function createWatcher(): Watcher
+    protected function createWatcher(?array $paths = null): Watcher
     {
         $this->commandDetector = $this->prophesize(CommandDetector::class);
         $this->commandDetector->commandExists('find')->willReturn(new Success(true));
 
         return new FindWatcher(
+            new WatcherConfig($paths ?? [
+                $this->workspace()->path()
+            ]),
             100,
             $this->createLogger(),
             $this->commandDetector->reveal()

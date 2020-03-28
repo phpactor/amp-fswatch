@@ -12,6 +12,7 @@ use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -49,7 +50,13 @@ class FindWatcher implements Watcher, WatcherProcess
      */
     private $stack;
 
+    /**
+     * @var WatcherConfig
+     */
+    private $config;
+
     public function __construct(
+        WatcherConfig $config,
         ?int $pollInterval = 1000,
         ?LoggerInterface $logger = null,
         ?CommandDetector $commandDetector = null
@@ -58,24 +65,25 @@ class FindWatcher implements Watcher, WatcherProcess
         $this->pollInterval = $pollInterval;
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->stack = new ModifiedFileStack();
+        $this->config = $config;
     }
 
-    public function watch(array $paths): Promise
+    public function watch(): Promise
     {
-        return \Amp\call(function () use ($paths) {
+        return \Amp\call(function () {
             $this->logger->info(sprintf(
                 'Polling at interval of "%s" milliseconds for changes paths "%s"',
                 $this->pollInterval,
-                implode('", "', $paths)
+                implode('", "', $this->config->paths())
             ));
 
             $this->updateDateReference();
             $this->running = true;
 
-            \Amp\asyncCall(function () use ($paths) {
+            \Amp\asyncCall(function () {
                 while ($this->running) {
                     $searches = [];
-                    foreach ($paths as $path) {
+                    foreach ($this->config->paths() as $path) {
                         $searches[] = $this->search($path);
                     }
                     yield \Amp\Promise\all($searches);

@@ -7,6 +7,7 @@ use Generator;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -32,9 +33,12 @@ class InotifyWatcherTest extends WatcherTestCase
         $this->osValidator->isLinux()->willReturn(true);
     }
 
-    protected function createWatcher(): Watcher
+    protected function createWatcher(?array $paths = null): Watcher
     {
         return new InotifyWatcher(
+            new WatcherConfig($paths ?? [
+                $this->workspace()->path()
+            ]),
             $this->createLogger(),
             $this->commandDetector->reveal(),
             $this->osValidator->reveal()

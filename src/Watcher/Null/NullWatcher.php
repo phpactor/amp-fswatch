@@ -13,7 +13,7 @@ class NullWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function watch(array $paths): Promise
+    public function watch(): Promise
     {
         return \Amp\call(function () {
             return $this;

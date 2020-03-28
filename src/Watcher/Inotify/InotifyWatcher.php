@@ -12,6 +12,7 @@ use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -54,11 +55,12 @@ class InotifyWatcher implements Watcher, WatcherProcess
     private $running;
 
     /**
-     * @var array<string>
+     * @var WatcherConfig
      */
-    private $paths;
+    private $config;
 
     public function __construct(
+        WatcherConfig $config,
         ?LoggerInterface $logger = null,
         ?CommandDetector $commandDetector = null,
         ?OsDetector $osDetector = null
@@ -67,13 +69,14 @@ class InotifyWatcher implements Watcher, WatcherProcess
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
         $this->stack = new ModifiedFileStack();
+        $this->config = $config;
     }
 
-    public function watch(array $paths): Promise
+    public function watch(): Promise
     {
-        return \Amp\call(function () use ($paths) {
+        return \Amp\call(function () {
             $this->running = true;
-            $this->process = yield $this->startProcess($paths);
+            $this->process = yield $this->startProcess();
             $this->feedStack($this->process);
 
             return $this;
@@ -109,19 +112,18 @@ class InotifyWatcher implements Watcher, WatcherProcess
     }
 
     /**
-     * @param array<string> $paths
      * @return Promise<Process>
      */
-    private function startProcess(array $paths): Promise
+    private function startProcess(): Promise
     {
-        return \Amp\call(function () use ($paths) {
+        return \Amp\call(function () {
             $process = new Process(array_merge([
                 self::INOTIFY_CMD,
                 '-r',
                 '-emodify,create,delete',
                 '--monitor',
                 '--csv',
-            ], $paths));
+            ], $this->config->paths()));
 
             $pid = yield $process->start();
             $this->logger->debug(sprintf('Started "%s"', $process->getCommand()));

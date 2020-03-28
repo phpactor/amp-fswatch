@@ -6,6 +6,7 @@ use Amp\Success;
 use Generator;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -24,9 +25,12 @@ class FsWatchWatcherTest extends WatcherTestCase
         $this->commandDetector->commandExists('fswatch')->willReturn(true);
     }
 
-    protected function createWatcher(): Watcher
+    protected function createWatcher(?array $paths = null): Watcher
     {
         return new FsWatchWatcher(
+            new WatcherConfig($paths ?? [
+                $this->workspace()->path()
+            ]),
             $this->createLogger(),
             $this->commandDetector->reveal()
         );

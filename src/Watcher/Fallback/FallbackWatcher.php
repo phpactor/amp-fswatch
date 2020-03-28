@@ -32,9 +32,9 @@ class FallbackWatcher implements Watcher
         }
     }
 
-    public function watch(array $paths): Promise
+    public function watch(): Promise
     {
-        return \Amp\call(function () use ($paths) {
+        return \Amp\call(function () {
             $watcherClasses = [];
             foreach ($this->watchers as $watcher) {
                 $watcherClasses[] = get_class($watcher);
@@ -48,7 +48,7 @@ class FallbackWatcher implements Watcher
                     get_class($watcher)
                 ));
 
-                return $watcher->watch($paths);
+                return $watcher->watch();
             }
 
             $this->logger->warning(sprintf(
