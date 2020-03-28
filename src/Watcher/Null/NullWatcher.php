@@ -3,7 +3,6 @@
 namespace Phpactor\AmpFsWatch\Watcher\Null;
 
 use Amp\Promise;
-use Amp\Success;
 use Phpactor\AmpFsWatch\WatcherProcess;
 
 use Phpactor\AmpFsWatch\Watcher;

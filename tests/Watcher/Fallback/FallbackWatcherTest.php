@@ -3,7 +3,6 @@
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Fallback;
 
 use Amp\PHPUnit\AsyncTestCase;
-use PHPUnit\Framework\TestCase;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;

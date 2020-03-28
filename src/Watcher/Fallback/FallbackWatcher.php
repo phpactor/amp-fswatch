@@ -4,7 +4,6 @@ namespace Phpactor\AmpFsWatch\Watcher\Fallback;
 
 use Amp\Promise;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\WatcherProcess;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Psr\Log\LoggerInterface;
 
