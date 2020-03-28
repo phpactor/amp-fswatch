@@ -115,6 +115,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
 
     /**
      * @param array<string> $paths
+     * @return Promise<Process>
      */
     private function startProcess(array $paths): Promise
     {

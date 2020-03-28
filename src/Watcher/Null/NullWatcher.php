@@ -29,6 +29,8 @@ class NullWatcher implements Watcher, WatcherProcess
 
     public function wait(): Promise
     {
-        return new Success(null);
+        return \Amp\call(function () {
+            return new Success(null);
+        });
     }
 }
