@@ -2,6 +2,7 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Find;
 
+use Amp\Success;
 use Generator;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
@@ -20,7 +21,7 @@ class FindWatcherTest extends WatcherTestCase
     protected function createWatcher(): Watcher
     {
         $this->commandDetector = $this->prophesize(CommandDetector::class);
-        $this->commandDetector->commandExists('find')->willReturn(true);
+        $this->commandDetector->commandExists('find')->willReturn(new Success(true));
 
         return new FindWatcher(
             100,
@@ -34,16 +35,16 @@ class FindWatcherTest extends WatcherTestCase
         $this->markTestSkipped('Not supported');
     }
 
-    public function testIsSupported(): void
+    public function testIsSupported(): Generator
     {
         $watcher = $this->createWatcher();
-        self::assertTrue($watcher->isSupported());
+        self::assertTrue(yield $watcher->isSupported());
     }
 
-    public function testIsNotSupportedIfFindNotFound(): void
+    public function testIsNotSupportedIfFindNotFound(): Generator
     {
         $watcher = $this->createWatcher();
-        $this->commandDetector->commandExists('find')->willReturn(false);
-        self::assertFalse($watcher->isSupported());
+        $this->commandDetector->commandExists('find')->willReturn(new Success(false));
+        self::assertFalse(yield $watcher->isSupported());
     }
 }

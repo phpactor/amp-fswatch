@@ -3,6 +3,8 @@
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Fallback;
 
 use Amp\PHPUnit\AsyncTestCase;
+use Amp\Success;
+use Generator;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
@@ -27,7 +29,7 @@ class FallbackWatcherTest extends AsyncTestCase
 
     public function testUsesFirstSupportedWatcher()
     {
-        $this->watcher1->isSupported()->willReturn(false);
+        $this->watcher1->isSupported()->willReturn(new Success(false));
 
         $callback = function () {
         };
@@ -45,8 +47,8 @@ class FallbackWatcherTest extends AsyncTestCase
 
     public function testReturnsNullWatcherAndLogsWarningIfNoSupportedWatchers()
     {
-        $this->watcher1->isSupported()->willReturn(false);
-        $this->watcher2->isSupported()->willReturn(false);
+        $this->watcher1->isSupported()->willReturn(new Success(false));
+        $this->watcher2->isSupported()->willReturn(new Success(false));
 
         $callback = function () {
         };
@@ -62,10 +64,10 @@ class FallbackWatcherTest extends AsyncTestCase
         self::assertInstanceOf(NullWatcher::class, $process);
     }
 
-    public function testIsAlwaysSupported()
+    public function testIsAlwaysSupported(): Generator
     {
         $watcher = $this->createWatcher([]);
-        self::assertTrue($watcher->isSupported());
+        self::assertTrue(yield $watcher->isSupported());
     }
 
     private function createWatcher(array $watchers): Watcher

@@ -3,6 +3,7 @@
 namespace Phpactor\AmpFsWatch\Watcher\Fallback;
 
 use Amp\Promise;
+use Amp\Success;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Psr\Log\LoggerInterface;
@@ -37,7 +38,7 @@ class FallbackWatcher implements Watcher
             foreach ($this->watchers as $watcher) {
                 $watcherClasses[] = get_class($watcher);
 
-                if (!$watcher->isSupported()) {
+                if (!yield $watcher->isSupported()) {
                     continue;
                 }
 
@@ -58,9 +59,9 @@ class FallbackWatcher implements Watcher
         });
     }
 
-    public function isSupported(): bool
+    public function isSupported(): Promise
     {
-        return true;
+        return new Success(true);
     }
 
     private function add(Watcher $watcher): void

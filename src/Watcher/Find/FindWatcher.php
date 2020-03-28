@@ -107,7 +107,7 @@ class FindWatcher implements Watcher, WatcherProcess
         $this->running = false;
     }
 
-    public function isSupported(): bool
+    public function isSupported(): Promise
     {
         return $this->commandDetector->commandExists('find');
     }

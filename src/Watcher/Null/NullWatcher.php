@@ -3,6 +3,7 @@
 namespace Phpactor\AmpFsWatch\Watcher\Null;
 
 use Amp\Promise;
+use Amp\Success;
 use Phpactor\AmpFsWatch\WatcherProcess;
 
 use Phpactor\AmpFsWatch\Watcher;
@@ -19,9 +20,9 @@ class NullWatcher implements Watcher, WatcherProcess
         });
     }
 
-    public function isSupported(): bool
+    public function isSupported(): Promise
     {
-        return true;
+        return new Success(true);
     }
 
     public function stop(): void

@@ -147,7 +147,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
         });
     }
 
-    public function isSupported(): bool
+    public function isSupported(): Promise
     {
         return $this->commandDetector->commandExists(self::CMD);
     }

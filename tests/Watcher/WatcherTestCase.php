@@ -167,5 +167,5 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return $watcher->watch($paths);
     }
 
-    abstract public function testIsSupported(): void;
+    abstract public function testIsSupported(): Generator;
 }

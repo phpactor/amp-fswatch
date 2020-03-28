@@ -12,5 +12,8 @@ interface Watcher
      */
     public function watch(array $paths): Promise;
 
-    public function isSupported(): bool;
+    /**
+     * @return Promise<bool>
+     */
+    public function isSupported(): Promise;
 }

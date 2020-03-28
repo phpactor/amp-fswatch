@@ -2,6 +2,8 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Inotify;
 
+use Amp\Success;
+use Generator;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\Watcher;
@@ -39,27 +41,27 @@ class InotifyWatcherTest extends WatcherTestCase
         );
     }
 
-    public function testIsSupported(): void
+    public function testIsSupported(): Generator
     {
         $watcher = $this->createWatcher();
-        $this->commandDetector->commandExists('inotifywait')->willReturn(true);
+        $this->commandDetector->commandExists('inotifywait')->willReturn(new Success(true));
 
-        self::assertTrue($watcher->isSupported());
+        self::assertTrue(yield $watcher->isSupported());
     }
 
-    public function testNotSupportedOnNonLinux(): void
+    public function testNotSupportedOnNonLinux(): Generator
     {
         $watcher = $this->createWatcher();
         $this->osValidator->isLinux()->willReturn(false);
-        $this->commandDetector->commandExists('inotifywait')->willReturn(true);
-        self::assertFalse($watcher->isSupported());
+        $this->commandDetector->commandExists('inotifywait')->willReturn(new Success(true));
+        self::assertFalse(yield $watcher->isSupported());
     }
 
-    public function testNotSupportedIfCommandNotFound(): void
+    public function testNotSupportedIfCommandNotFound(): Generator
     {
         $watcher = $this->createWatcher();
         $this->osValidator->isLinux()->willReturn(true);
-        $this->commandDetector->commandExists('inotifywait')->willReturn(false);
-        self::assertFalse($watcher->isSupported());
+        $this->commandDetector->commandExists('inotifywait')->willReturn(new Success(false));
+        self::assertFalse(yield $watcher->isSupported());
     }
 }

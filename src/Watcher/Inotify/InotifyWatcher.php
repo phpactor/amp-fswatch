@@ -6,6 +6,7 @@ use Amp\ByteStream\LineReader;
 use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
+use Amp\Success;
 use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
@@ -70,8 +71,8 @@ class InotifyWatcher implements Watcher, WatcherProcess
     public function watch(array $paths): Promise
     {
         return \Amp\call(function () use ($paths) {
-            $this->process = yield $this->startProcess($paths);
             $this->running = true;
+            $this->process = yield $this->startProcess($paths);
             $this->feedStack($this->process);
 
             return $this;
@@ -156,10 +157,10 @@ class InotifyWatcher implements Watcher, WatcherProcess
         });
     }
 
-    public function isSupported(): bool
+    public function isSupported(): Promise
     {
         if (!$this->osDetector->isLinux()) {
-            return false;
+            return new Success(false);
         }
 
         return $this->commandDetector->commandExists(self::INOTIFY_CMD);
