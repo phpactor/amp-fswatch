@@ -3,10 +3,10 @@ Amp FS Watch
 
 [![Build Status](https://travis-ci.org/phpactor/amp-fswatch.svg?branch=master)](https://travis-ci.org/phpactor/amp-fswatch)
 
-This is asynchronously (via. [Amp](https://amphp.org/)) monitor paths on your
-file system using various stategues.
+This is an [Amp](https://amphp.org/) library for asynchronously monitor paths
+on your file system changes using various stategues.
 
-It's designed to trigger code indexing in
+It's been created to trigger code indexing in
 [Phpactor](https://github.com/phpactor/phpactor).
 
 Usage
@@ -75,6 +75,10 @@ use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 $watcher = new FindWatcher(1000, $logger);
 // ...
 ```
+
+Arguments:
+
+- 0: Milliseconds between polls
 
 ### Fallback
 
