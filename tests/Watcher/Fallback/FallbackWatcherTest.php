@@ -2,6 +2,7 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Fallback;
 
+use Amp\PHPUnit\AsyncTestCase;
 use PHPUnit\Framework\TestCase;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
@@ -10,7 +11,7 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Log\LoggerInterface;
 
-class FallbackWatcherTest extends TestCase
+class FallbackWatcherTest extends AsyncTestCase
 {
     /**
      * @var ObjectProphecy|LoggerInterface
@@ -19,6 +20,7 @@ class FallbackWatcherTest extends TestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->logger = $this->prophesize(LoggerInterface::class);
         $this->watcher1 = $this->prophesize(Watcher::class);
         $this->watcher2 = $this->prophesize(Watcher::class);
@@ -34,7 +36,7 @@ class FallbackWatcherTest extends TestCase
 
         $nullWatcher = new NullWatcher();
 
-        $process = $this->createWatcher([
+        $process = yield $this->createWatcher([
             $this->watcher1->reveal(),
             $nullWatcher
         ])->watch($paths, $callback);
@@ -51,7 +53,7 @@ class FallbackWatcherTest extends TestCase
         };
         $paths = ['path1'];
 
-        $process = $this->createWatcher([
+        $process = yield $this->createWatcher([
             $this->watcher1->reveal(),
             $this->watcher2->reveal(),
         ])->watch($paths, $callback);

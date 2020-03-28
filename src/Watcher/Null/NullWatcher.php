@@ -13,9 +13,11 @@ class NullWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function watch(array $paths): WatcherProcess
+    public function watch(array $paths): Promise
     {
-        return $this;
+        return \Amp\call(function () {
+            return $this;
+        });
     }
 
     public function isSupported(): bool
@@ -30,7 +32,7 @@ class NullWatcher implements Watcher, WatcherProcess
     public function wait(): Promise
     {
         return \Amp\call(function () {
-            return new Success(null);
+            return null;
         });
     }
 }

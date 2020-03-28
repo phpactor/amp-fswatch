@@ -66,30 +66,32 @@ class FindWatcher implements Watcher, WatcherProcess
         $this->stack = new ModifiedFileStack();
     }
 
-    public function watch(array $paths): WatcherProcess
+    public function watch(array $paths): Promise
     {
-        $this->logger->info(sprintf(
-            'Polling at interval of "%s" milliseconds for changes paths "%s"',
-            $this->pollInterval,
-            implode('", "', $paths)
-        ));
+        return \Amp\call(function () use ($paths) {
+            $this->logger->info(sprintf(
+                'Polling at interval of "%s" milliseconds for changes paths "%s"',
+                $this->pollInterval,
+                implode('", "', $paths)
+            ));
 
-        $this->updateDateReference();
-        $this->running = true;
+            $this->updateDateReference();
+            $this->running = true;
 
-        \Amp\asyncCall(function () use ($paths) {
-            while ($this->running) {
-                $searches = [];
-                foreach ($paths as $path) {
-                    $searches[] = $this->search($path);
+            \Amp\asyncCall(function () use ($paths) {
+                while ($this->running) {
+                    $searches = [];
+                    foreach ($paths as $path) {
+                        $searches[] = $this->search($path);
+                    }
+                    yield \Amp\Promise\all($searches);
+                    $this->updateDateReference();
+                    yield new Delayed($this->pollInterval);
                 }
-                yield \Amp\Promise\all($searches);
-                $this->updateDateReference();
-                yield new Delayed($this->pollInterval);
-            }
-        });
+            });
 
-        return $this;
+            return $this;
+        });
     }
 
     public function wait(): Promise

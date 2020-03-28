@@ -2,6 +2,7 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\Fallback;
 
+use Amp\Promise;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
@@ -30,33 +31,32 @@ class FallbackWatcher implements Watcher
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function watch(array $paths): WatcherProcess
+    public function watch(array $paths): Promise
     {
-        $watcherClasses = [];
-        foreach ($this->watchers as $watcher) {
-            $watcherClasses[] = get_class($watcher);
+        return \Amp\call(function () use ($paths) {
+            $watcherClasses = [];
+            foreach ($this->watchers as $watcher) {
+                $watcherClasses[] = get_class($watcher);
 
-            if (!$watcher->isSupported()) {
-                continue;
+                if (!$watcher->isSupported()) {
+                    continue;
+                }
+
+                $this->logger->notice(sprintf(
+                    'Watching files with "%s"',
+                    get_class($watcher)
+                ));
+
+                return $watcher->watch($paths);
             }
 
-            $this->logger->notice(sprintf(
-                'Watching files with "%s"',
-                get_class($watcher)
+            $this->logger->warning(sprintf(
+                'No supported watchers, tried "%s".',
+                implode('", "', $watcherClasses)
             ));
 
-            return $watcher->watch($paths);
-        }
-
-        $this->logger->warning(sprintf(
-            'No supported watchers, tried "%s".',
-            implode('", "', $watcherClasses)
-        ));
-
-        return new NullWatcher();
+            return new NullWatcher();
+        });
     }
 
     public function isSupported(): bool
