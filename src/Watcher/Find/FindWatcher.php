@@ -14,6 +14,7 @@ use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 
 class FindWatcher implements Watcher, WatcherProcess
@@ -49,11 +50,11 @@ class FindWatcher implements Watcher, WatcherProcess
     private $stack;
 
     public function __construct(
-        int $pollInterval,
-        LoggerInterface $logger,
+        ?int $pollInterval = 1000,
+        ?LoggerInterface $logger = null,
         ?CommandDetector $commandDetector = null
     ) {
-        $this->logger = $logger;
+        $this->logger = $logger ?: new NullLogger();
         $this->pollInterval = $pollInterval;
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->stack = new ModifiedFileStack();

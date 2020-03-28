@@ -12,6 +12,7 @@ use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 
 class FsWatchWatcher implements Watcher, WatcherProcess
@@ -50,10 +51,10 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     private $paths;
 
     public function __construct(
-        LoggerInterface $logger,
+        ?LoggerInterface $logger = null,
         ?CommandDetector $commandDetector = null
     ) {
-        $this->logger = $logger;
+        $this->logger = $logger ?: new NullLogger();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->stack = new ModifiedFileStack();
     }

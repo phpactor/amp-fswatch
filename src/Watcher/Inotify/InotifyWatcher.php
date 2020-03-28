@@ -13,7 +13,9 @@ use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
+use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RuntimeException;
 
 class InotifyWatcher implements Watcher, WatcherProcess
@@ -58,11 +60,11 @@ class InotifyWatcher implements Watcher, WatcherProcess
     private $paths;
 
     public function __construct(
-        LoggerInterface $logger,
+        ?LoggerInterface $logger = null,
         ?CommandDetector $commandDetector = null,
         ?OsDetector $osDetector = null
     ) {
-        $this->logger = $logger;
+        $this->logger = $logger ?: new NullLogger();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
         $this->stack = new ModifiedFileStack();

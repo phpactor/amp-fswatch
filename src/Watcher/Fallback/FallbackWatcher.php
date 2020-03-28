@@ -7,6 +7,7 @@ use Amp\Success;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class FallbackWatcher implements Watcher
 {
@@ -23,9 +24,9 @@ class FallbackWatcher implements Watcher
     /**
      * @param array<Watcher> $watchers
      */
-    public function __construct(array $watchers, LoggerInterface $logger)
+    public function __construct(array $watchers, ?LoggerInterface $logger = null)
     {
-        $this->logger = $logger;
+        $this->logger = $logger ?: new NullLogger();
         foreach ($watchers as $watcher) {
             $this->add($watcher);
         }

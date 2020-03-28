@@ -17,25 +17,26 @@ In general:
 ```php
 use Amp\Loop;
 use Phpactor\AmpFsWatch\ModifiedFile;
+use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
+use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
+use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
-use Psr\Log\NullLogger;
 
-$logger = new NullLogger();
+Loop::run(function () use () {
+    $watcher = new FallbackWatcher([
+        new InotifyWatcher(),
+        new FsWatchWatcher(),
+        new FindWatcher(),
+    ], $logger);
 
-$watcher = new InotifyWatcher($logger);
-$process = $watcher->watch([ 'src' ]);
+    $process = yield $watcher->watch([
+        'src',
+    ]);
 
-\Amp\call(function () use ($process) {
-    while (null !== $modifiedFile = $process->wait()) {
-
-        assert($modifiedFile instanceof ModifiedFile);
-
-        $modifiedFile->path(); // Full path to file
-        $modifiedFile->type(); // ModifiedFile::TYPE_FILE or ModifiedFile::TYPE_FOLDER
+    while (null !== $file = yield $process->wait()) {
+        fwrite(STDOUT, sprintf('%s (%s)', $file->path(), $file->type()));
     }
 });
-
-Loop::run();
 ```
 
 ### Inotify
