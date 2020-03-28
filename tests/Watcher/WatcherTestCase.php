@@ -3,6 +3,7 @@
 namespace Phpactor\AmpFsWatcher\Tests\Watcher;
 
 use Amp\Delayed;
+use Amp\Promise;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher;
@@ -13,11 +14,13 @@ use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
 
 abstract class WatcherTestCase extends IntegrationTestCase
 {
+    const DELAY_MILLI = 20;
+
     abstract protected function createWatcher(): Watcher;
 
     public function testSingleFileChange(): Generator
     {
-        $process = $this->startProcess();
+        $process = yield $this->startProcess();
         yield $this->delay();
         $this->workspace()->put('foobar', '');
         yield $this->delay();
@@ -35,7 +38,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     public function testMultipleSameFile(): Generator
     {
-        $process = $this->startProcess();
+        $process = yield $this->startProcess();
 
         yield $this->delay();
         $this->workspace()->put('foobar', '');
@@ -55,7 +58,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     public function testDirectory(): Generator
     {
-        $process = $this->startProcess();
+        $process = yield $this->startProcess();
 
         yield $this->delay();
         $this->workspace()->mkdir('foobar');
@@ -76,7 +79,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
     {
         $this->workspace()->put('foobar', '');
 
-        $process = $this->startProcess();
+        $process = yield $this->startProcess();
 
         yield $this->delay();
 
@@ -100,7 +103,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
         $this->workspace()->mkdir('foobar');
         $this->workspace()->mkdir('barfoo');
 
-        $process = $this->startProcess([
+        $process = yield $this->startProcess([
             $this->workspace()->path('barfoo'),
             $this->workspace()->path('foobar'),
         ]);
@@ -132,7 +135,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     protected function delay(): Delayed
     {
-        return new Delayed(20);
+        return new Delayed(self::DELAY_MILLI);
     }
 
     protected function setUp(): void
@@ -152,10 +155,14 @@ abstract class WatcherTestCase extends IntegrationTestCase
         };
     }
 
-    private function startProcess(?array $paths = []): WatcherProcess
+    /**
+     * @param array<string> $paths
+     *
+     * @return Promise<WatcherProcess>
+     */
+    private function startProcess(?array $paths = []): Promise
     {
         $paths = $paths ?: [ $this->workspace()->path() ];
-        ;
         $watcher = $this->createWatcher();
         return $watcher->watch($paths);
     }

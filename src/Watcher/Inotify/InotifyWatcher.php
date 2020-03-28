@@ -74,29 +74,20 @@ class InotifyWatcher implements Watcher, WatcherProcess
         $this->stack = new ModifiedFileStack();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function watch(array $paths): WatcherProcess
+    public function watch(array $paths): Promise
     {
-        $this->paths = $paths;
-
-        \Amp\asyncCall(function () {
-            $this->process = yield $this->startProcess($this->paths);
+        return \Amp\call(function () use ($paths) {
+            $this->process = yield $this->startProcess($paths);
             $this->running = true;
             $this->feedStack($this->process);
-        });
 
-        return $this;
+            return $this;
+        });
     }
 
     public function wait(): Promise
     {
         return \Amp\call(function () {
-            while (null === $this->process) {
-                yield new Delayed(self::POLL_TIME);
-            }
-
             while ($this->running) {
                 $this->stack = $this->stack->compress();
 

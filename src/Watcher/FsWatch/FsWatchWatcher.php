@@ -5,6 +5,7 @@ namespace Phpactor\AmpFsWatch\Watcher\FsWatch;
 use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
+use Generator;
 use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
