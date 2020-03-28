@@ -2,13 +2,13 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\FsWatch;
 
+use Amp\ByteStream\LineReader;
 use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
-use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
@@ -23,11 +23,6 @@ class FsWatchWatcher implements Watcher, WatcherProcess
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var LineParser
-     */
-    private $parser;
 
     /**
      * @var Process|null
@@ -56,11 +51,9 @@ class FsWatchWatcher implements Watcher, WatcherProcess
 
     public function __construct(
         LoggerInterface $logger,
-        ?CommandDetector $commandDetector = null,
-        ?LineParser $parser = null
+        ?CommandDetector $commandDetector = null
     ) {
         $this->logger = $logger;
-        $this->parser = $parser ?: new LineParser();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->stack = new ModifiedFileStack();
     }
@@ -142,12 +135,15 @@ class FsWatchWatcher implements Watcher, WatcherProcess
 
     private function feedStack(Process $process): void
     {
-        $this->parser->stream($process->getStdout(), function (string $line) {
-            $builder = ModifiedFileBuilder::fromPath($line);
-            if (file_exists($line) && !is_file($line)) {
-                $builder->asFolder();
+        $reader = new LineReader($process->getStdout());
+        \Amp\asyncCall(function () use ($reader) {
+            while (null !== $line = yield $reader->readLine()) {
+                $builder = ModifiedFileBuilder::fromPath($line);
+                if (file_exists($line) && !is_file($line)) {
+                    $builder->asFolder();
+                }
+                $this->stack->append($builder->build());
             }
-            $this->stack->append($builder->build());
         });
     }
 

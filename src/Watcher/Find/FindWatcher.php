@@ -2,6 +2,7 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\Find;
 
+use Amp\ByteStream\LineReader;
 use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
@@ -9,7 +10,6 @@ use Amp\Process\ProcessInputStream;
 use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileStack;
-use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
@@ -18,11 +18,6 @@ use RuntimeException;
 
 class FindWatcher implements Watcher, WatcherProcess
 {
-    /**
-     * @var LineParser
-     */
-    private $lineParser;
-
     /**
      * @var LoggerInterface
      */
@@ -56,10 +51,8 @@ class FindWatcher implements Watcher, WatcherProcess
     public function __construct(
         int $pollInterval,
         LoggerInterface $logger,
-        ?CommandDetector $commandDetector = null,
-        ?LineParser $lineParser = null
+        ?CommandDetector $commandDetector = null
     ) {
-        $this->lineParser = $lineParser ?: new LineParser();
         $this->logger = $logger;
         $this->pollInterval = $pollInterval;
         $this->commandDetector = $commandDetector ?: new CommandDetector();
@@ -155,8 +148,11 @@ class FindWatcher implements Watcher, WatcherProcess
 
     private function feedStack(ProcessInputStream $stream): void
     {
-        $this->lineParser->stream($stream, function (string $line) {
-            $this->stack->append(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
+        \Amp\asyncCall(function () use ($stream) {
+            $reader = new LineReader($stream);
+            while (null !== $line = yield $reader->readLine()) {
+                $this->stack->append(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
+            }
         });
     }
 

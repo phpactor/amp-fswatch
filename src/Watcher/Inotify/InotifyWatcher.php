@@ -2,6 +2,7 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
+use Amp\ByteStream\LineReader;
 use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
@@ -9,7 +10,6 @@ use Phpactor\AmpFsWatch\ModifiedFileStack;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
-use Phpactor\AmpFsWatch\Parser\LineParser;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
@@ -25,11 +25,6 @@ class InotifyWatcher implements Watcher, WatcherProcess
      * @var LoggerInterface
      */
     private $logger;
-
-    /**
-     * @var LineParser
-     */
-    private $parser;
 
     /**
      * @var Process|null
@@ -64,11 +59,9 @@ class InotifyWatcher implements Watcher, WatcherProcess
     public function __construct(
         LoggerInterface $logger,
         ?CommandDetector $commandDetector = null,
-        ?OsDetector $osDetector = null,
-        ?LineParser $parser = null
+        ?OsDetector $osDetector = null
     ) {
         $this->logger = $logger;
-        $this->parser = $parser ?: new LineParser();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
         $this->stack = new ModifiedFileStack();
@@ -144,20 +137,22 @@ class InotifyWatcher implements Watcher, WatcherProcess
 
     private function feedStack(Process $process): void
     {
-        $this->parser->stream($process->getStdout(), function (string $line) {
-            $this->logger->debug(sprintf('EVENT: %s', $line));
-            $event = InotifyEvent::createFromCsv($line);
+        \Amp\asyncCall(function () use ($process) {
+            $lineReader = new LineReader($process->getStdout());
+            while (null !== $line = yield $lineReader->readLine()) {
+                $event = InotifyEvent::createFromCsv($line);
 
-            $builder = ModifiedFileBuilder::fromPathSegments(
-                $event->watchedFileName(),
-                $event->eventFilename()
-            );
+                $builder = ModifiedFileBuilder::fromPathSegments(
+                    $event->watchedFileName(),
+                    $event->eventFilename()
+                );
 
-            if ($event->hasEventName('ISDIR')) {
-                $builder = $builder->asFolder();
+                if ($event->hasEventName('ISDIR')) {
+                    $builder = $builder->asFolder();
+                }
+
+                $this->stack->append($builder->build());
             }
-
-            $this->stack->append($builder->build());
         });
     }
 
