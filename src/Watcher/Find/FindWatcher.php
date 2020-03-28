@@ -117,6 +117,9 @@ class FindWatcher implements Watcher, WatcherProcess
         return $this->commandDetector->commandExists('find');
     }
 
+    /**
+     * @return Promise<void>
+     */
     private function search(string $path): Promise
     {
         return \Amp\call(function () use ($path) {
@@ -155,6 +158,9 @@ class FindWatcher implements Watcher, WatcherProcess
         });
     }
 
+    /**
+     * @return Promise<Process>
+     */
     private function startProcess(string $path): Promise
     {
         return \Amp\call(function () use ($path) {

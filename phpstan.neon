@@ -6,3 +6,5 @@ parameters:
     paths:
         - src
 
+    stubFiles:
+            - etc/stubs/amp.stub

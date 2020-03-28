@@ -124,6 +124,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
 
     /**
      * @param array<string> $paths
+     * @return Promise<Process>
      */
     private function startProcess(array $paths): Promise
     {
