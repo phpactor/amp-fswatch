@@ -26,7 +26,7 @@ class FsWatchWatcherTest extends WatcherTestCase
     {
         return new FsWatchWatcher(
             $this->createLogger(),
-            $this->commandDetector->reveal(),
+            $this->commandDetector->reveal()
         );
     }
 

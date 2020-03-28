@@ -12,7 +12,7 @@ cache:
         - $HOME/.composer/cache
 
 before_script:
-    - sudo apt-get -y install inotify-tools
+    - sudo apt-get -y install inotify-tools fswatch
     - composer install
 
 script:
