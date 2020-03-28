@@ -1,0 +1,50 @@
+#!/usr/bin/env php
+<?php
+
+use Amp\Delayed;
+use Amp\Loop;
+use Phpactor\AmpFsWatch\ModifiedFile;
+use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
+use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
+use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
+use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
+use Psr\Log\AbstractLogger;
+
+
+require __DIR__ . '/../vendor/autoload.php';
+
+echo "This is a demo application\n";
+
+if (!isset($argv[1])) {
+    echo "You must specify a path to watch";
+    exit(1);
+}
+ 
+$path = $argv[1];
+$logger = new class extends AbstractLogger {
+    public function log($level, $message, array $context = [])
+    {
+        fwrite(STDERR, sprintf('[%s] %s', $level, $message)."\n");
+    }
+};
+
+
+$watcher = new FallbackWatcher([
+    new InotifyWatcher(),
+    new FsWatchWatcher(),
+    new FindWatcher(1000),
+], $logger);
+
+
+Loop::run(function () use ($watcher, $path) {
+    $process = yield $watcher->watch([$path]);
+
+    while (null !== $file = yield $process->wait()) {
+        fwrite(STDOUT, sprintf('[%s] %s (%s)'."\n", date('Y-m-d H:i:s.u'), $file->path(), $file->type()));
+    }
+
+    Loop::onSignal(SIGINT, function () use ($process) {
+        $process->stop();
+        Loop::stop();
+    });
+});
