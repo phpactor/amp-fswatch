@@ -1,25 +1,25 @@
 <?php
 
-namespace Phpactor\AmpFsWatcher\Tests\Watcher\Filtering;
+namespace Phpactor\AmpFsWatcher\Tests\Watcher\PatternMatching;
 
 use Amp\PHPUnit\AsyncTestCase;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\Watcher\Filtering\PatternFilteringWatcher;
+use Phpactor\AmpFsWatch\Watcher\PatternMatching\PatternMatchingWatcher;
 use Phpactor\AmpFsWatch\Watcher\TestWatcher\TestWatcher;
 
-class PatternFilteringWatcherTest extends AsyncTestCase
+class PatternMatchingWatcherTest extends AsyncTestCase
 {
-    protected function createWatcher(string $pattern, array $modifiedFiles): Watcher
+    protected function createWatcher(array $patterns, array $modifiedFiles): Watcher
     {
-        return new PatternFilteringWatcher(new TestWatcher(new ModifiedFileQueue($modifiedFiles)), $pattern);
+        return new PatternMatchingWatcher(new TestWatcher(new ModifiedFileQueue($modifiedFiles)), $patterns);
     }
 
     public function testFiltersFiles()
     {
-        $process = yield $this->createWatcher('*.php', [
+        $process = yield $this->createWatcher(['*.php'], [
             $this->createFile('Foobar.php'),
             $this->createFile('Foobar.php~'),
             $this->createFile('timestamp'),
@@ -36,7 +36,7 @@ class PatternFilteringWatcherTest extends AsyncTestCase
 
     public function testIsSupported(): Generator
     {
-        self::assertTrue(yield $this->createWatcher('*.php', [])->isSupported());
+        self::assertTrue(yield $this->createWatcher([], [])->isSupported());
     }
 
     private function createFile(string $name): ModifiedFile

@@ -1,11 +1,11 @@
 <?php
 
-namespace Phpactor\AmpFsWatch\Watcher\Filtering;
+namespace Phpactor\AmpFsWatch\Watcher\PatternMatching;
 
 use Amp\Promise;
 use Phpactor\AmpFsWatch\Watcher;
 
-class PatternFilteringWatcher implements Watcher
+class PatternMatchingWatcher implements Watcher
 {
     /**
      * @var Watcher
@@ -13,21 +13,24 @@ class PatternFilteringWatcher implements Watcher
     private $innerWatcher;
 
     /**
-     * @var string
+     * @var array<string>
      */
-    private $pattern;
+    private $patterns;
 
-    public function __construct(Watcher $innerWatcher, string $pattern)
+    /**
+     * @param array<string> $patterns
+     */
+    public function __construct(Watcher $innerWatcher, array $patterns)
     {
         $this->innerWatcher = $innerWatcher;
-        $this->pattern = $pattern;
+        $this->patterns = $patterns;
     }
 
     public function watch(): Promise
     {
         return \Amp\call(function () {
             $process = yield $this->innerWatcher->watch();
-            return new FilteringWatcherProcess($process, $this->pattern);
+            return new PatternWatcherProcess($process, $this->patterns);
         });
     }
 

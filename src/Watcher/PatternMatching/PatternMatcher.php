@@ -1,6 +1,6 @@
 <?php
 
-namespace Phpactor\AmpFsWatch\Watcher\Filtering;
+namespace Phpactor\AmpFsWatch\Watcher\PatternMatching;
 
 class PatternMatcher
 {

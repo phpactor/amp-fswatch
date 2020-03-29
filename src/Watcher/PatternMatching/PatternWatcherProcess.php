@@ -1,11 +1,11 @@
 <?php
 
-namespace Phpactor\AmpFsWatch\Watcher\Filtering;
+namespace Phpactor\AmpFsWatch\Watcher\PatternMatching;
 
 use Amp\Promise;
 use Phpactor\AmpFsWatch\WatcherProcess;
 
-class FilteringWatcherProcess implements WatcherProcess
+class PatternWatcherProcess implements WatcherProcess
 {
     /**
      * @var WatcherProcess
@@ -13,20 +13,23 @@ class FilteringWatcherProcess implements WatcherProcess
     private $process;
 
     /**
-     * @var string
+     * @var array<string>
      */
-    private $pattern;
+    private $patterns;
 
     /**
      * @var PatternMatcher
      */
     private $matcher;
 
-    public function __construct(WatcherProcess $process, string $pattern, ?PatternMatcher $matcher = null)
+    /**
+     * @param array<string> $patterns
+     */
+    public function __construct(WatcherProcess $process, array $patterns, ?PatternMatcher $matcher = null)
     {
         $this->process = $process;
-        $this->pattern = $pattern;
         $this->matcher = $matcher ?: new PatternMatcher();
+        $this->patterns = $patterns;
     }
 
     public function stop(): void
@@ -41,11 +44,13 @@ class FilteringWatcherProcess implements WatcherProcess
     {
         return \Amp\call(function () {
             while (null !== $file = yield $this->process->wait()) {
-                if (false === $this->matcher->matches($file->path(), $this->pattern)) {
-                    continue;
-                }
+                foreach ($this->patterns as $pattern) {
+                    if (false === $this->matcher->matches($file->path(), $pattern)) {
+                        continue 2;
+                    }
 
-                return $file;
+                    return $file;
+                }
             }
         });
     }

@@ -1,9 +1,9 @@
 <?php
 
-namespace Phpactor\AmpFsWatcher\Tests\Watcher\Filtering;
+namespace Phpactor\AmpFsWatcher\Tests\Watcher\PatternMatching;
 
 use PHPUnit\Framework\TestCase;
-use Phpactor\AmpFsWatch\Watcher\Filtering\PatternMatcher;
+use Phpactor\AmpFsWatch\Watcher\PatternMatching\PatternMatcher;
 
 class PatternMatcherTest extends TestCase
 {
