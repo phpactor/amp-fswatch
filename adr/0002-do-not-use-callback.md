@@ -38,7 +38,7 @@ Decision
 Refactor the code to yield promises for modified files.
 
 Whilst initially I thought this would be quite difficult, it didn't take long.
-Each watcher has an async co-routing which builds a stack of modified files
+Each watcher has an async co-routing which builds a queue of modified files
 which are then subsequently yieled when `->wait()` is called on the `Watcher`
 (if there are no files, then we pause the co-routine for some milliseconds
 then try again).

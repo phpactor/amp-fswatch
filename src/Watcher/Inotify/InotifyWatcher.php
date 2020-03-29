@@ -7,7 +7,7 @@ use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
 use Amp\Success;
-use Phpactor\AmpFsWatch\ModifiedFileStack;
+use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
@@ -45,9 +45,9 @@ class InotifyWatcher implements Watcher, WatcherProcess
     private $osDetector;
 
     /**
-     * @var ModifiedFileStack
+     * @var ModifiedFileQueue
      */
-    private $stack;
+    private $queue;
 
     /**
      * @var bool
@@ -68,7 +68,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
         $this->logger = $logger ?: new NullLogger();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
-        $this->stack = new ModifiedFileStack();
+        $this->queue = new ModifiedFileQueue();
         $this->config = $config;
     }
 
@@ -77,7 +77,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
         return \Amp\call(function () {
             $this->running = true;
             $this->process = yield $this->startProcess();
-            $this->feedStack($this->process);
+            $this->feedQueue($this->process);
 
             return $this;
         });
@@ -87,9 +87,9 @@ class InotifyWatcher implements Watcher, WatcherProcess
     {
         return \Amp\call(function () {
             while ($this->running) {
-                $this->stack = $this->stack->compress();
+                $this->queue = $this->queue->compress();
 
-                if ($next = $this->stack->unshift()) {
+                if ($next = $this->queue->dequeue()) {
                     return $next;
                 }
 
@@ -139,7 +139,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
         });
     }
 
-    private function feedStack(Process $process): void
+    private function feedQueue(Process $process): void
     {
         \Amp\asyncCall(function () use ($process) {
             $lineReader = new LineReader($process->getStdout());
@@ -155,7 +155,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
                     $builder = $builder->asFolder();
                 }
 
-                $this->stack->append($builder->build());
+                $this->queue->enqueue($builder->build());
             }
         });
     }

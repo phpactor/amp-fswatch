@@ -27,7 +27,7 @@ from which we need to read the streams.
 
 So for example, for the find watcher we would need to maintain the state of
 each of the find processes. As we can only return one promise at a time, and a
-process may return multiple files at a time, we need to maintain a stack of
+process may return multiple files at a time, we need to maintain a queue of
 file modifications for the next call to `wait`.
 
 Another simple Amp solution is to use an emitter, in which case the API would

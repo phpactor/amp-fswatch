@@ -27,8 +27,7 @@ class FindWatcherTest extends WatcherTestCase
         return new FindWatcher(
             new WatcherConfig($paths ?? [
                 $this->workspace()->path()
-            ]),
-            100,
+            ], 100),
             $this->createLogger(),
             $this->commandDetector->reveal()
         );

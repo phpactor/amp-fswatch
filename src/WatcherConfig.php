@@ -10,11 +10,17 @@ class WatcherConfig
     private $paths;
 
     /**
+     * @var int
+     */
+    private $pollInterval;
+
+    /**
      * @param array<string> $paths
      */
-    public function __construct(array $paths)
+    public function __construct(array $paths, int $pollInterval = 1000)
     {
         $this->paths = $paths;
+        $this->pollInterval = $pollInterval;
     }
 
     /**
@@ -23,5 +29,10 @@ class WatcherConfig
     public function paths(): array
     {
         return $this->paths;
+    }
+
+    public function pollInterval(): int
+    {
+        return $this->pollInterval;
     }
 }

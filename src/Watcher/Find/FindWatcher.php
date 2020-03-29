@@ -9,7 +9,7 @@ use Amp\Promise;
 use Amp\Process\ProcessInputStream;
 use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\ModifiedFileStack;
+use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
@@ -41,9 +41,9 @@ class FindWatcher implements Watcher, WatcherProcess
     private $commandDetector;
 
     /**
-     * @var ModifiedFileStack
+     * @var ModifiedFileQueue
      */
-    private $stack;
+    private $queue;
 
     /**
      * @var WatcherConfig
@@ -57,7 +57,7 @@ class FindWatcher implements Watcher, WatcherProcess
     ) {
         $this->logger = $logger ?: new NullLogger();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
-        $this->stack = new ModifiedFileStack();
+        $this->queue = new ModifiedFileQueue();
         $this->config = $config;
     }
 
@@ -93,9 +93,9 @@ class FindWatcher implements Watcher, WatcherProcess
     {
         return \Amp\call(function () {
             while ($this->running) {
-                $this->stack = $this->stack->compress();
+                $this->queue = $this->queue->compress();
 
-                if ($next = $this->stack->unshift()) {
+                if ($next = $this->queue->dequeue()) {
                     return $next;
                 }
 
@@ -123,7 +123,7 @@ class FindWatcher implements Watcher, WatcherProcess
             $start = microtime(true);
             $process = yield $this->startProcess($path);
 
-            $this->feedStack($process->getStdout());
+            $this->feedQueue($process->getStdout());
 
             $exitCode = yield $process->join();
             $stop = microtime(true);
@@ -148,12 +148,12 @@ class FindWatcher implements Watcher, WatcherProcess
         });
     }
 
-    private function feedStack(ProcessInputStream $stream): void
+    private function feedQueue(ProcessInputStream $stream): void
     {
         \Amp\asyncCall(function () use ($stream) {
             $reader = new LineReader($stream);
             while (null !== $line = yield $reader->readLine()) {
-                $this->stack->append(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
+                $this->queue->enqueue(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
             }
         });
     }

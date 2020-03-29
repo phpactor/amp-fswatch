@@ -6,7 +6,7 @@ use Amp\ByteStream\LineReader;
 use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
-use Phpactor\AmpFsWatch\ModifiedFileStack;
+use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher;
@@ -37,9 +37,9 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     private $commandDetector;
 
     /**
-     * @var ModifiedFileStack
+     * @var ModifiedFileQueue
      */
-    private $stack;
+    private $queue;
 
     /**
      * @var bool
@@ -58,7 +58,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     ) {
         $this->logger = $logger ?: new NullLogger();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
-        $this->stack = new ModifiedFileStack();
+        $this->queue = new ModifiedFileQueue();
         $this->config = $config;
     }
 
@@ -70,7 +70,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
         return \Amp\call(function () {
             $this->process = yield $this->startProcess();
             $this->running = true;
-            $this->feedStack($this->process);
+            $this->feedQueue($this->process);
             return $this;
         });
     }
@@ -83,9 +83,9 @@ class FsWatchWatcher implements Watcher, WatcherProcess
             }
 
             while ($this->running) {
-                $this->stack = $this->stack->compress();
+                $this->queue = $this->queue->compress();
 
-                if ($next = $this->stack->unshift()) {
+                if ($next = $this->queue->dequeue()) {
                     return $next;
                 }
 
@@ -136,7 +136,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
         });
     }
 
-    private function feedStack(Process $process): void
+    private function feedQueue(Process $process): void
     {
         $reader = new LineReader($process->getStdout());
         \Amp\asyncCall(function () use ($reader) {
@@ -145,7 +145,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
                 if (file_exists($line) && !is_file($line)) {
                     $builder->asFolder();
                 }
-                $this->stack->append($builder->build());
+                $this->queue->enqueue($builder->build());
             }
         });
     }
