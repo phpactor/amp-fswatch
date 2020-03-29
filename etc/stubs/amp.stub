@@ -3,7 +3,7 @@
 namespace Amp;
 
 /**
- * @template TReturn
+ * @template-coroutine TReturn
  *
  * @param callable():\Generator<mixed, mixed, mixed, TReturn> $gen
  *
@@ -25,7 +25,7 @@ function coroutine(callable $gen) : callable
 //}
 
 /**
- * @template TReturn
+ * @template-covariant TReturn
  */
 interface Promise
 {
