@@ -26,11 +26,6 @@ class FindWatcher implements Watcher, WatcherProcess
     private $logger;
 
     /**
-     * @var int
-     */
-    private $pollInterval;
-
-    /**
      * @var DateTimeImmutable
      */
     private $lastUpdate;
@@ -57,12 +52,10 @@ class FindWatcher implements Watcher, WatcherProcess
 
     public function __construct(
         WatcherConfig $config,
-        ?int $pollInterval = 1000,
         ?LoggerInterface $logger = null,
         ?CommandDetector $commandDetector = null
     ) {
         $this->logger = $logger ?: new NullLogger();
-        $this->pollInterval = $pollInterval;
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->stack = new ModifiedFileStack();
         $this->config = $config;
@@ -73,7 +66,7 @@ class FindWatcher implements Watcher, WatcherProcess
         return \Amp\call(function () {
             $this->logger->info(sprintf(
                 'Polling at interval of "%s" milliseconds for changes paths "%s"',
-                $this->pollInterval,
+                $this->config->pollInterval(),
                 implode('", "', $this->config->paths())
             ));
 
@@ -88,7 +81,7 @@ class FindWatcher implements Watcher, WatcherProcess
                     }
                     yield \Amp\Promise\all($searches);
                     $this->updateDateReference();
-                    yield new Delayed($this->pollInterval);
+                    yield new Delayed($this->config->pollInterval());
                 }
             });
 
