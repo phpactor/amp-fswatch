@@ -14,10 +14,9 @@ class PatternMatcher
 
         $pattern = str_replace('*', self::WILDCARD_TOKEN, $pattern);
         $pattern = preg_quote($pattern);
-        $pattern = str_replace(self::WILDCARD_TOKEN, '.*',$pattern);
+        $pattern = str_replace(self::WILDCARD_TOKEN, '.*', $pattern);
         $pattern = sprintf('{^%s$}', $pattern);
 
         return 1 === preg_match($pattern, $path);
-
     }
 }

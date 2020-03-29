@@ -3,13 +3,9 @@
 namespace Phpactor\AmpFsWatch\Watcher\Filtering;
 
 use Amp\Promise;
-use Amp\Success;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
-class RegexFilteringWatcher implements Watcher
+class PatternFilteringWatcher implements Watcher
 {
     /**
      * @var Watcher
@@ -19,19 +15,19 @@ class RegexFilteringWatcher implements Watcher
     /**
      * @var string
      */
-    private $regexPattern;
+    private $pattern;
 
-    public function __construct(Watcher $innerWatcher, string $regexPattern)
+    public function __construct(Watcher $innerWatcher, string $pattern)
     {
         $this->innerWatcher = $innerWatcher;
-        $this->regexPattern = $regexPattern;
+        $this->pattern = $pattern;
     }
 
     public function watch(): Promise
     {
         return \Amp\call(function () {
             $process = yield $this->innerWatcher->watch();
-            return new FilteringWatcherProcess($process, $this->regexPattern);
+            return new FilteringWatcherProcess($process, $this->pattern);
         });
     }
 
@@ -40,4 +36,3 @@ class RegexFilteringWatcher implements Watcher
         return $this->innerWatcher->isSupported();
     }
 }
-

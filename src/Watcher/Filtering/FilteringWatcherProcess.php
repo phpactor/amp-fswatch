@@ -15,11 +15,6 @@ class FilteringWatcherProcess implements WatcherProcess
     /**
      * @var string
      */
-    private $regexPattern;
-
-    /**
-     * @var string
-     */
     private $pattern;
 
     /**
@@ -30,7 +25,6 @@ class FilteringWatcherProcess implements WatcherProcess
     public function __construct(WatcherProcess $process, string $pattern, ?PatternMatcher $matcher = null)
     {
         $this->process = $process;
-        $this->regexPattern = $pattern;
         $this->pattern = $pattern;
         $this->matcher = $matcher ?: new PatternMatcher();
     }
