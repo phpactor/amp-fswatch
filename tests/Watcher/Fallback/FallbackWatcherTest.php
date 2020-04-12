@@ -6,6 +6,7 @@ use Amp\PHPUnit\AsyncTestCase;
 use Amp\Success;
 use Generator;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Prophecy\Argument;

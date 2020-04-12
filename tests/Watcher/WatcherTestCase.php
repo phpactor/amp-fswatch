@@ -7,6 +7,7 @@ use Amp\Promise;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\Watcher;
+use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
@@ -16,7 +17,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
 {
     const DELAY_MILLI = 20;
 
-    abstract protected function createWatcher(): Watcher;
+    abstract protected function createWatcher(WatcherConfig $config): Watcher;
 
     public function testSingleFileChange(): Generator
     {
@@ -163,7 +164,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
     private function startProcess(?array $paths = []): Promise
     {
         $paths = $paths ?: [ $this->workspace()->path() ];
-        $watcher = $this->createWatcher($paths);
+        $watcher = $this->createWatcher(new WatcherConfig($paths));
         return $watcher->watch();
     }
 

@@ -15,12 +15,33 @@ class WatcherConfig
     private $pollInterval;
 
     /**
-     * @param array<string> $paths
+     * @var array<string>
      */
-    public function __construct(array $paths, int $pollInterval = 1000)
+    private $filePatterns;
+
+    /**
+     * @param array<string> $paths
+     * @param array<string> $filePatterns
+     */
+    public function __construct(array $paths, int $pollInterval = 1000, array $filePatterns = [])
     {
         $this->paths = $paths;
         $this->pollInterval = $pollInterval;
+        $this->filePatterns = $filePatterns;
+    }
+
+    public function withPath(string $path): self
+    {
+        $new = clone $this;
+        $new->paths[] = $path;
+        return $new;
+    }
+
+    public function withPollInterval(int $pollInterval): self
+    {
+        $new = clone $this;
+        $new->pollInterval = $pollInterval;
+        return $new;
     }
 
     /**
@@ -34,5 +55,13 @@ class WatcherConfig
     public function pollInterval(): int
     {
         return $this->pollInterval;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function filePatterns(): array
+    {
+        return $this->filePatterns;
     }
 }

@@ -33,12 +33,10 @@ class InotifyWatcherTest extends WatcherTestCase
         $this->osValidator->isLinux()->willReturn(true);
     }
 
-    protected function createWatcher(?array $paths = null): Watcher
+    protected function createWatcher(WatcherConfig $config): Watcher
     {
         return new InotifyWatcher(
-            new WatcherConfig($paths ?? [
-                $this->workspace()->path()
-            ]),
+            $config,
             $this->createLogger(),
             $this->commandDetector->reveal(),
             $this->osValidator->reveal()
@@ -47,7 +45,7 @@ class InotifyWatcherTest extends WatcherTestCase
 
     public function testIsSupported(): Generator
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher(new WatcherConfig([]));
         $this->commandDetector->commandExists('inotifywait')->willReturn(new Success(true));
 
         self::assertTrue(yield $watcher->isSupported());
@@ -55,7 +53,7 @@ class InotifyWatcherTest extends WatcherTestCase
 
     public function testNotSupportedOnNonLinux(): Generator
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher(new WatcherConfig([]));
         $this->osValidator->isLinux()->willReturn(false);
         $this->commandDetector->commandExists('inotifywait')->willReturn(new Success(true));
         self::assertFalse(yield $watcher->isSupported());
@@ -63,7 +61,7 @@ class InotifyWatcherTest extends WatcherTestCase
 
     public function testNotSupportedIfCommandNotFound(): Generator
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher(new WatcherConfig([]));
         $this->osValidator->isLinux()->willReturn(true);
         $this->commandDetector->commandExists('inotifywait')->willReturn(new Success(false));
         self::assertFalse(yield $watcher->isSupported());

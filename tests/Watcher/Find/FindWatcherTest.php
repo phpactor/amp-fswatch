@@ -19,15 +19,13 @@ class FindWatcherTest extends WatcherTestCase
      */
     private $commandDetector;
 
-    protected function createWatcher(?array $paths = null): Watcher
+    protected function createWatcher(WatcherConfig $config): Watcher
     {
         $this->commandDetector = $this->prophesize(CommandDetector::class);
         $this->commandDetector->commandExists('find')->willReturn(new Success(true));
 
         return new FindWatcher(
-            new WatcherConfig($paths ?? [
-                $this->workspace()->path()
-            ], 100),
+            $config->withPollInterval(100),
             $this->createLogger(),
             $this->commandDetector->reveal()
         );
@@ -40,13 +38,13 @@ class FindWatcherTest extends WatcherTestCase
 
     public function testIsSupported(): Generator
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher(new WatcherConfig([]));
         self::assertTrue(yield $watcher->isSupported());
     }
 
     public function testIsNotSupportedIfFindNotFound(): Generator
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher(new WatcherConfig([]));
         $this->commandDetector->commandExists('find')->willReturn(new Success(false));
         self::assertFalse(yield $watcher->isSupported());
     }

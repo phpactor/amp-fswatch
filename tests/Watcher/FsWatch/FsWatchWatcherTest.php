@@ -25,12 +25,10 @@ class FsWatchWatcherTest extends WatcherTestCase
         $this->commandDetector->commandExists('fswatch')->willReturn(true);
     }
 
-    protected function createWatcher(?array $paths = null): Watcher
+    protected function createWatcher(WatcherConfig $config): Watcher
     {
         return new FsWatchWatcher(
-            new WatcherConfig($paths ?? [
-                $this->workspace()->path()
-            ]),
+            $config,
             $this->createLogger(),
             $this->commandDetector->reveal()
         );
@@ -38,7 +36,7 @@ class FsWatchWatcherTest extends WatcherTestCase
 
     public function testIsSupported(): Generator
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher(new WatcherConfig([]));
         $this->commandDetector->commandExists('fswatch')->willReturn(new Success(true));
 
         self::assertTrue(yield $watcher->isSupported());
@@ -46,7 +44,7 @@ class FsWatchWatcherTest extends WatcherTestCase
 
     public function testNotSupportedIfCommandNotFound(): Generator
     {
-        $watcher = $this->createWatcher();
+        $watcher = $this->createWatcher(new WatcherConfig([]));
         $this->commandDetector->commandExists('fswatch')->willReturn(new Success(false));
         self::assertFalse(yield $watcher->isSupported());
     }
