@@ -9,6 +9,7 @@ use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
+use Phpactor\AmpFsWatch\Watcher\PhpPollWatcher\PhpPollWatcher;
 use Psr\Log\AbstractLogger;
 
 
@@ -32,9 +33,10 @@ $logger = new class extends AbstractLogger {
 
 $config = new WatcherConfig([$path]);
 $watcher = new FallbackWatcher([
+    new PhpPollWatcher($config),
     new InotifyWatcher($config),
     new FsWatchWatcher($config),
-    new FindWatcher($config, 1000),
+    new FindWatcher($config),
 ], $logger);
 
 
