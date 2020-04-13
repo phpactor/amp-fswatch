@@ -10,7 +10,6 @@ use Amp\Process\ProcessInputStream;
 use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
-use Phpactor\AmpFsWatch\PatternMatcher;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
