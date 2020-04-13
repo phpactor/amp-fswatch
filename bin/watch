@@ -35,9 +35,9 @@ $logger = new class extends AbstractLogger {
 $config = new WatcherConfig([$path]);
 $watcher = new PatternMatchingWatcher(new FallbackWatcher([
     new FindWatcher($config, $logger),
+    new PhpPollWatcher($config, $logger),
     new InotifyWatcher($config, $logger),
     new FsWatchWatcher($config, $logger),
-    new PhpPollWatcher($config, $logger),
 ], $logger), [ '*.php' ]);
 
 Loop::run(function () use ($watcher, $path) {

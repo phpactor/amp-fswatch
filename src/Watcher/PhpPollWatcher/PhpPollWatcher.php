@@ -17,8 +17,6 @@ use Webmozart\PathUtil\Path;
 
 class PhpPollWatcher implements Watcher, WatcherProcess
 {
-    private const QUEUE_CHECK_TIME = 10;
-
     /**
      * @var LoggerInterface
      */
@@ -102,7 +100,7 @@ class PhpPollWatcher implements Watcher, WatcherProcess
                     return $next;
                 }
 
-                yield new Delayed(self::QUEUE_CHECK_TIME);
+                yield new Delayed($this->config->pollInterval() / 2);
             }
         });
     }
