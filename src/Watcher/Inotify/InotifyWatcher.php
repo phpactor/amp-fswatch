@@ -138,8 +138,6 @@ class InotifyWatcher implements Watcher, WatcherProcess
             if (null === $line = yield $this->lineReader->readLine()) {
                 return null;
             }
-            echo $line."\n";
-
 
             $event = InotifyEvent::createFromCsv($line);
 
