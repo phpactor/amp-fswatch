@@ -12,7 +12,6 @@ use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatch\Watcher\PhpPollWatcher\PhpPollWatcher;
 use Psr\Log\AbstractLogger;
 
-
 require __DIR__ . '/../vendor/autoload.php';
 
 echo "This is a demo application\n";
@@ -33,10 +32,10 @@ $logger = new class extends AbstractLogger {
 
 $config = new WatcherConfig([$path]);
 $watcher = new FallbackWatcher([
-    new PhpPollWatcher($config),
     new InotifyWatcher($config),
     new FsWatchWatcher($config),
     new FindWatcher($config),
+    new PhpPollWatcher($config),
 ], $logger);
 
 

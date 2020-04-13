@@ -12,7 +12,7 @@ It's been created to trigger code indexing in
 Usage
 -----
 
-In general:
+In general (see `bin/watch` for a simple example implementation):
 
 ```php
 use Amp\Loop;
@@ -21,12 +21,15 @@ use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
+use Phpactor\AmpFsWatch\Watcher\PhpPollWatcher\PhpPollWatcher;
 
+$logger = // create a PSR logger
 Loop::run(function () use () {
     $watcher = new FallbackWatcher([
-        new InotifyWatcher(),
-        new FsWatchWatcher(),
-        new FindWatcher(),
+        new InotifyWatcher($config, $logger),
+        new FsWatchWatcher($config, $logger),
+        new FindWatcher($config, $logger),
+        new PhpPollWatcher($config, $logger),
     ], $logger);
 
     $process = yield $watcher->watch([
@@ -46,7 +49,7 @@ Use the Linux `inotifywait` binary to monitor for changes.
 ```php
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 
-$watcher = new InotifyWatcher($logger);
+$watcher = new InotifyWatcher($config, $logger);
 // ...
 ```
 
@@ -59,7 +62,7 @@ platforms native functionality when possible.
 ```php
 use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 
-$watcher = new FsWatchWatcher($logger);
+$watcher = new FsWatchWatcher($config, $logger);
 // ...
 ```
 
@@ -72,13 +75,30 @@ Poll for changes every second:
 ```php
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 
-$watcher = new FindWatcher(1000, $logger);
+$watcher = new FindWatcher($config, $logger);
 // ...
 ```
 
 Arguments:
 
 - 0: Milliseconds between polls
+
+### PHP Poll
+
+This is the slowest and most resource intensive option but it should
+work on all environments.
+
+```php
+use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
+
+$watcher = new PhpPollWatcher($config, $logger);
+// ...
+```
+
+Arguments:
+
+- 0: Milliseconds between polls
+
 
 ### Fallback
 
