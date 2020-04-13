@@ -2,6 +2,7 @@ parameters:
     level: 7
     inferPrivatePropertyTypeFromConstructor: true
     ignoreErrors:
+        - '{Unable to resolve the template type TReturn in call to function}'
 
     paths:
         - src
