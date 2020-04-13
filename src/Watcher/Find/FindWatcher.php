@@ -10,6 +10,7 @@ use Amp\Process\ProcessInputStream;
 use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
+use Phpactor\AmpFsWatch\PatternMatcher;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
@@ -99,7 +100,7 @@ class FindWatcher implements Watcher, WatcherProcess
                     return $next;
                 }
 
-                yield new Delayed(1);
+                yield new Delayed($this->config->pollInterval() / 2);
             }
         });
     }
