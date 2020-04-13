@@ -9,6 +9,8 @@ use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
+use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
+use Phpactor\AmpFsWatch\Watcher\PatternMatching\PatternMatchingWatcher;
 use Phpactor\AmpFsWatch\Watcher\PhpPollWatcher\PhpPollWatcher;
 use Psr\Log\AbstractLogger;
 
@@ -31,13 +33,12 @@ $logger = new class extends AbstractLogger {
 
 
 $config = new WatcherConfig([$path]);
-$watcher = new FallbackWatcher([
+$watcher = new PatternMatchingWatcher(new FallbackWatcher([
     new InotifyWatcher($config),
     new FsWatchWatcher($config),
     new FindWatcher($config),
     new PhpPollWatcher($config),
-], $logger);
-
+], $logger), [ '*.php' ]);
 
 Loop::run(function () use ($watcher, $path) {
     $process = yield $watcher->watch([$path]);

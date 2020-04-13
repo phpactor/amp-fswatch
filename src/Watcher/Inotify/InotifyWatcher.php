@@ -3,10 +3,10 @@
 namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
 use Amp\ByteStream\LineReader;
-use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
 use Amp\Success;
+use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
@@ -21,8 +21,6 @@ use RuntimeException;
 class InotifyWatcher implements Watcher, WatcherProcess
 {
     const INOTIFY_CMD = 'inotifywait';
-    const POLL_TIME = 1;
-
 
     /**
      * @var LoggerInterface
@@ -59,6 +57,11 @@ class InotifyWatcher implements Watcher, WatcherProcess
      */
     private $config;
 
+    /**
+     * @var LineReader
+     */
+    private $lineReader;
+
     public function __construct(
         WatcherConfig $config,
         ?LoggerInterface $logger = null,
@@ -75,9 +78,8 @@ class InotifyWatcher implements Watcher, WatcherProcess
     public function watch(): Promise
     {
         return \Amp\call(function () {
-            $this->running = true;
             $this->process = yield $this->startProcess();
-            $this->feedQueue($this->process);
+            $this->lineReader = new LineReader($this->process->getStdout());
 
             return $this;
         });
@@ -85,19 +87,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
 
     public function wait(): Promise
     {
-        return \Amp\call(function () {
-            while ($this->running) {
-                $this->queue = $this->queue->compress();
-
-                if ($next = $this->queue->dequeue()) {
-                    return $next;
-                }
-
-                yield new Delayed(self::POLL_TIME);
-            }
-
-            return null;
-        });
+        return $this->feedQueue();
     }
 
     public function stop(): void
@@ -107,7 +97,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
                 'Inotifywait process was not started, cannot call stop()'
             );
         }
-        $this->running = false;
+
         $this->process->signal(SIGTERM);
     }
 
@@ -139,24 +129,30 @@ class InotifyWatcher implements Watcher, WatcherProcess
         });
     }
 
-    private function feedQueue(Process $process): void
+    /**
+     * @return Promise<ModifiedFile|null>
+     */
+    private function feedQueue(): Promise
     {
-        \Amp\asyncCall(function () use ($process) {
-            $lineReader = new LineReader($process->getStdout());
-            while (null !== $line = yield $lineReader->readLine()) {
-                $event = InotifyEvent::createFromCsv($line);
-
-                $builder = ModifiedFileBuilder::fromPathSegments(
-                    $event->watchedFileName(),
-                    $event->eventFilename()
-                );
-
-                if ($event->hasEventName('ISDIR')) {
-                    $builder = $builder->asFolder();
-                }
-
-                $this->queue->enqueue($builder->build());
+        return \Amp\call(function () {
+            if (null === $line = yield $this->lineReader->readLine()) {
+                return null;
             }
+            echo $line."\n";
+
+
+            $event = InotifyEvent::createFromCsv($line);
+
+            $builder = ModifiedFileBuilder::fromPathSegments(
+                $event->watchedFileName(),
+                $event->eventFilename()
+            );
+
+            if ($event->hasEventName('ISDIR')) {
+                $builder = $builder->asFolder();
+            }
+
+            return $builder->build();
         });
     }
 
