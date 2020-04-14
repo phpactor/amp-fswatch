@@ -75,7 +75,8 @@ class PhpPollWatcher implements Watcher, WatcherProcess
                     yield \Amp\Promise\all($searches);
 
                     $this->logger->debug(sprintf(
-                        'Scanned paths "%s" in %s seconds',
+                        'pid: %s PHP watcher scanned paths "%s" in %s seconds',
+                        getmypid(),
                         implode('", "', $this->config->paths()),
                         number_format(microtime(true) - $start, 2)
                     ));

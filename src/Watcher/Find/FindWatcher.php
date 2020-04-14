@@ -129,7 +129,8 @@ class FindWatcher implements Watcher, WatcherProcess
             $stop = microtime(true);
 
             $this->logger->debug(sprintf(
-                'Find process "%s" done in %s seconds',
+                'pid:%s Find process "%s" done in %s seconds',
+                getmypid(),
                 $process->getCommand(),
                 number_format($stop - $start, 2)
             ));
