@@ -37,6 +37,24 @@ abstract class WatcherTestCase extends IntegrationTestCase
         $process->stop();
     }
 
+    public function testSingleFileChangeWithModificationTimeInPast(): Generator
+    {
+        $process = yield $this->startProcess();
+        yield $this->delay();
+        touch($this->workspace()->path('foobar'), time() - 3600);
+        yield $this->delay();
+
+        self::assertEquals(
+            new ModifiedFile(
+                $this->workspace()->path('foobar'),
+                ModifiedFile::TYPE_FILE
+            ),
+            yield $process->wait()
+        );
+
+        $process->stop();
+    }
+
     public function testMultipleSameFile(): Generator
     {
         $process = yield $this->startProcess();

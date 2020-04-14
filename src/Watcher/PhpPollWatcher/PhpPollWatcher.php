@@ -128,7 +128,7 @@ class PhpPollWatcher implements Watcher, WatcherProcess
                 }
                 $filePath = Path::join($path, $file);
                 clearstatcache();
-                $mtime = filemtime($filePath);
+                $mtime = filectime($filePath);
                 $isDir = is_dir($filePath);
 
 

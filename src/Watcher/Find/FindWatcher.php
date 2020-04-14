@@ -164,12 +164,15 @@ class FindWatcher implements Watcher, WatcherProcess
     private function startProcess(string $path): Promise
     {
         return \Amp\call(function () use ($path) {
+            // use ctime (inode status change time) rather than modification
+            // time as vendor libraries (for example) preserve the modification
+            // times.
             $process = new Process([
                 'find',
                 $path,
                 '-mindepth',
                 '1',
-                '-newermt',
+                '-newerct',
                 $this->lastUpdate->format('Y-m-d H:i:s.u'),
             ]);
 
