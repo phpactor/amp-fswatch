@@ -20,30 +20,18 @@ class PatternMatcherTest extends TestCase
         yield [
             '/foobar',
             '',
-            true
-        ];
-
-        yield [
-            '/foobar',
-            'foobar',
             false
         ];
 
         yield [
             '/foobar',
-            '*foobar',
+            '/foobar',
             true
         ];
 
         yield [
             '/foobar',
-            '/foobar*',
-            true
-        ];
-
-        yield [
-            '/foobar/foobar',
-            '/foobar*',
+            '/*foobar',
             true
         ];
 
@@ -55,13 +43,13 @@ class PatternMatcherTest extends TestCase
 
         yield [
             '/barfoo/foobar.php',
-            '*.php',
+            '/**/*.php',
             true
         ];
 
         yield [
-            '/barfoo/foobar.php',
-            '*.php',
+            '/foobar.php',
+            '/**/*.php',
             true
         ];
     }

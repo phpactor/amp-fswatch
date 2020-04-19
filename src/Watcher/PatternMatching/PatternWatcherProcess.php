@@ -15,7 +15,7 @@ class PatternWatcherProcess implements WatcherProcess
     /**
      * @var array<string>
      */
-    private $patterns;
+    private $includePatterns;
 
     /**
      * @var PatternMatcher
@@ -25,11 +25,11 @@ class PatternWatcherProcess implements WatcherProcess
     /**
      * @param array<string> $patterns
      */
-    public function __construct(WatcherProcess $process, array $patterns, ?PatternMatcher $matcher = null)
+    public function __construct(WatcherProcess $process, array $includePatterns, ?PatternMatcher $matcher = null)
     {
         $this->process = $process;
         $this->matcher = $matcher ?: new PatternMatcher();
-        $this->patterns = $patterns;
+        $this->includePatterns = $includePatterns;
     }
 
     public function stop(): void
@@ -44,7 +44,7 @@ class PatternWatcherProcess implements WatcherProcess
     {
         return \Amp\call(function () {
             while (null !== $file = yield $this->process->wait()) {
-                foreach ($this->patterns as $pattern) {
+                foreach ($this->includePatterns as $pattern) {
                     if (false === $this->matcher->matches($file->path(), $pattern)) {
                         continue 2;
                     }

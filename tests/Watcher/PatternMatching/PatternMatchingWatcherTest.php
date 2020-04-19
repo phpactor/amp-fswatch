@@ -19,10 +19,10 @@ class PatternMatchingWatcherTest extends AsyncTestCase
 
     public function testFiltersFiles()
     {
-        $process = yield $this->createWatcher(['*.php'], [
-            $this->createFile('Foobar.php'),
-            $this->createFile('Foobar.php~'),
-            $this->createFile('timestamp'),
+        $process = yield $this->createWatcher(['/**/*.php'], [
+            $this->createFile('/Foobar.php'),
+            $this->createFile('/Foobar.php~'),
+            $this->createFile('/timestamp'),
         ])->watch();
 
         $files = [];
@@ -31,7 +31,7 @@ class PatternMatchingWatcherTest extends AsyncTestCase
         }
 
         self::assertCount(1, $files);
-        self::assertEquals($this->createFile('Foobar.php'), $files[0]);
+        self::assertEquals($this->createFile('/Foobar.php'), $files[0]);
     }
 
     public function testIsSupported(): Generator
