@@ -15,22 +15,29 @@ class PatternMatchingWatcher implements Watcher
     /**
      * @var array<string>
      */
-    private $patterns;
+    private $includePatterns;
 
     /**
-     * @param array<string> $patterns
+     * @var array<string>
      */
-    public function __construct(Watcher $innerWatcher, array $patterns)
+    private $excludePatterns;
+
+    /**
+     * @param array<string> $includePatterns
+     * @param array<string> $excludePatterns
+     */
+    public function __construct(Watcher $innerWatcher, array $includePatterns, array $excludePatterns)
     {
         $this->innerWatcher = $innerWatcher;
-        $this->patterns = $patterns;
+        $this->includePatterns = $includePatterns;
+        $this->excludePatterns = $excludePatterns;
     }
 
     public function watch(): Promise
     {
         return \Amp\call(function () {
             $process = yield $this->innerWatcher->watch();
-            return new PatternWatcherProcess($process, $this->patterns);
+            return new PatternWatcherProcess($process, $this->includePatterns, $this->excludePatterns);
         });
     }
 

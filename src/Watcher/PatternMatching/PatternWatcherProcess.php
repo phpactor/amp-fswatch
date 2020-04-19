@@ -23,13 +23,20 @@ class PatternWatcherProcess implements WatcherProcess
     private $matcher;
 
     /**
-     * @param array<string> $patterns
+     * @var array<string>
      */
-    public function __construct(WatcherProcess $process, array $includePatterns, ?PatternMatcher $matcher = null)
+    private $excludePatterns;
+
+    /**
+     * @param array<string> $includePatterns
+     * @param array<string> $excludePatterns
+     */
+    public function __construct(WatcherProcess $process, array $includePatterns, array $excludePatterns, ?PatternMatcher $matcher = null)
     {
         $this->process = $process;
         $this->matcher = $matcher ?: new PatternMatcher();
         $this->includePatterns = $includePatterns;
+        $this->excludePatterns = $excludePatterns;
     }
 
     public function stop(): void
@@ -48,9 +55,15 @@ class PatternWatcherProcess implements WatcherProcess
                     if (false === $this->matcher->matches($file->path(), $pattern)) {
                         continue 2;
                     }
-
-                    return $file;
                 }
+
+                foreach ($this->excludePatterns as $pattern) {
+                    if (true === $this->matcher->matches($file->path(), $pattern)) {
+                        continue 2;
+                    }
+                }
+
+                return $file;
             }
         });
     }
