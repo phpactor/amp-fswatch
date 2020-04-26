@@ -36,7 +36,8 @@ class BufferedWatcherProcess implements WatcherProcess
 
         \Amp\asyncCall(function () {
             while ($modifiedFile = yield $this->innerProcess->wait()) {
-                $this->buffer[] = $modifiedFile;
+                assert($modifiedFile instanceof ModifiedFile);
+                $this->buffer[$modifiedFile->path()] = $modifiedFile;
             }
         });
     }
