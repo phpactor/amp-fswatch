@@ -179,7 +179,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
      *
      * @return Promise<WatcherProcess>
      */
-    private function startProcess(?array $paths = []): Promise
+    protected function startProcess(?array $paths = []): Promise
     {
         $paths = $paths ?: [ $this->workspace()->path() ];
         $watcher = $this->createWatcher(new WatcherConfig($paths));

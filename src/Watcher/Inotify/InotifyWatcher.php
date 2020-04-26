@@ -17,6 +17,7 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use Webmozart\PathUtil\Path;
 
 class InotifyWatcher implements Watcher, WatcherProcess
 {
@@ -61,6 +62,11 @@ class InotifyWatcher implements Watcher, WatcherProcess
      * @var LineReader
      */
     private $lineReader;
+
+    /**
+     * @var array<ModifiedFile>
+     */
+    private $directoryBuffer = [];
 
     public function __construct(
         WatcherConfig $config,
@@ -110,7 +116,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
             $process = new Process(array_merge([
                 self::INOTIFY_CMD,
                 '-r',
-                '-emodify,create,delete',
+                '-emodify,create,delete,move',
                 '--monitor',
                 '--csv',
             ], $this->config->paths()));
@@ -135,6 +141,10 @@ class InotifyWatcher implements Watcher, WatcherProcess
     private function feedQueue(): Promise
     {
         return \Amp\call(function () {
+            while (null !== $file = array_shift($this->directoryBuffer)) {
+                return $file;
+            }
+
             if (null === $line = yield $this->lineReader->readLine()) {
                 return null;
             }
@@ -150,7 +160,13 @@ class InotifyWatcher implements Watcher, WatcherProcess
                 $builder = $builder->asFolder();
             }
 
-            return $builder->build();
+            $modifiedFile = $builder->build();
+
+            if ($event->hasEventName('MOVED_TO') && $modifiedFile->type() === ModifiedFile::TYPE_FOLDER) {
+                yield $this->enqueueDirectory($modifiedFile->path());
+            }
+
+            return $modifiedFile;
         });
     }
 
@@ -161,5 +177,34 @@ class InotifyWatcher implements Watcher, WatcherProcess
         }
 
         return $this->commandDetector->commandExists(self::INOTIFY_CMD);
+    }
+
+    /**
+     * @return Promise<void>
+     */
+    private function enqueueDirectory(string $path): Promise
+    {
+        return \Amp\call(function () use ($path) {
+            $files = scandir($path);
+            foreach ((array)$files as $file) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+
+                $filePath = Path::join($path, $file);
+                $isDir = is_dir($filePath);
+                $file = ModifiedFileBuilder::fromPath($filePath);
+
+                if ($isDir) {
+                    $file = $file->asFolder();
+                }
+
+                $this->directoryBuffer[] = $file->build();
+
+                if ($isDir) {
+                    yield $this->enqueueDirectory($filePath);
+                }
+            }
+        });
     }
 }

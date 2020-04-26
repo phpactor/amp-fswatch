@@ -4,7 +4,6 @@ namespace Phpactor\AmpFsWatch\Watcher\BufferedWatcher;
 
 use Amp\Promise;
 use Phpactor\AmpFsWatch\Watcher;
-use Phpactor\AmpFsWatch\WatcherProcess;
 
 class BufferedWatcher implements Watcher
 {

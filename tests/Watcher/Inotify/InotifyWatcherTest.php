@@ -2,6 +2,7 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\Inotify;
 
+use Amp\Delayed;
 use Amp\Success;
 use Generator;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
@@ -11,6 +12,7 @@ use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 use Prophecy\Prophecy\ObjectProphecy;
+use Webmozart\PathUtil\Path;
 
 class InotifyWatcherTest extends WatcherTestCase
 {
@@ -65,5 +67,38 @@ class InotifyWatcherTest extends WatcherTestCase
         $this->osValidator->isLinux()->willReturn(true);
         $this->commandDetector->commandExists('inotifywait')->willReturn(new Success(false));
         self::assertFalse(yield $watcher->isSupported());
+    }
+
+    public function testMove(): Generator
+    {
+        $process = yield $this->startProcess();
+
+        yield $this->delay();
+
+        $this->workspace()->put('foobar/baz.php', 'content');
+        $this->workspace()->put('foobar/bar.php', 'content');
+        $this->workspace()->put('foobar/zog/bar.php', 'content');
+        $this->workspace()->put('foobar/1.php', 'content');
+        rename($this->workspace()->path('foobar'), $this->workspace()->path('barfoo'));
+
+        yield $this->delay();
+        yield $this->delay();
+
+        $files = [];
+        \Amp\asyncCall(function () use (&$files, $process) {
+            while (null !== $file = yield $process->wait()) {
+                $path = Path::makeRelative($file->path(), $this->workspace()->path());
+                $files[$path] = true;
+            }
+        });
+
+        yield new Delayed(10);
+        $process->stop();
+
+        self::assertArrayHasKey('barfoo/bar.php', $files);
+        self::assertArrayHasKey('barfoo/baz.php', $files);
+        self::assertArrayHasKey('barfoo/zog/bar.php', $files);
+
+        $process->stop();
     }
 }
