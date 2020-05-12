@@ -55,10 +55,10 @@ class BufferedWatcherProcess implements WatcherProcess
     {
         return \Amp\call(function () {
             while ($this->running) {
-                yield new Delayed($this->interval);
                 if ($this->buffer) {
                     return array_shift($this->buffer);
                 }
+                yield new Delayed($this->interval);
             }
         });
     }
