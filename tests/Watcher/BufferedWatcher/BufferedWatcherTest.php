@@ -48,4 +48,19 @@ class BufferedWatcherTest extends AsyncTestCase
         self::assertSame($expectedFile2, $file1);
         self::assertSame($expectedFile4, $file2);
     }
+
+    public function testReturnsNulLWhenInnerWatcherStops(): Generator
+    {
+        $expectedFile1 = new ModifiedFile('/foo', ModifiedFile::TYPE_FILE);
+        $queue = new ModifiedFileQueue([
+            $expectedFile1,
+        ]);
+        $bufferedWatcher = new BufferedWatcher(new TestWatcher($queue), 100);
+        $process = yield $bufferedWatcher->watch();
+        $file1 = yield $process->wait();
+        $file2 = yield $process->wait();
+
+        self::assertSame($expectedFile1, $file1);
+        self::assertNull($file2);
+    }
 }

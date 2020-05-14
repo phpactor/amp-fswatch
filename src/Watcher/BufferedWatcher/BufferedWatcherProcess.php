@@ -2,7 +2,6 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\BufferedWatcher;
 
-use Amp\Delayed;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\WatcherProcess;
@@ -15,31 +14,29 @@ class BufferedWatcherProcess implements WatcherProcess
     private $innerProcess;
 
     /**
-     * @var array<ModifiedFile>
-     */
-    private $buffer = [];
-
-    /**
      * @var bool
      */
     private $running = true;
+
+    /**
+     * @var array<string,ModifiedFile>
+     */
+    private $buffer = [];
 
     /**
      * @var int
      */
     private $interval;
 
+    /**
+     * @var float
+     */
+    private $startTime;
+
     public function __construct(WatcherProcess $innerProcess, int $interval = 500)
     {
         $this->innerProcess = $innerProcess;
         $this->interval = $interval;
-
-        \Amp\asyncCall(function () {
-            while ($modifiedFile = yield $this->innerProcess->wait()) {
-                assert($modifiedFile instanceof ModifiedFile);
-                $this->buffer[$modifiedFile->path()] = $modifiedFile;
-            }
-        });
     }
 
     public function stop(): void
@@ -54,12 +51,32 @@ class BufferedWatcherProcess implements WatcherProcess
     public function wait(): Promise
     {
         return \Amp\call(function () {
-            while ($this->running) {
-                if ($this->buffer) {
-                    return array_shift($this->buffer);
-                }
-                yield new Delayed($this->interval);
+            if (!empty($this->buffer)) {
+                return array_shift($this->buffer);
             }
+
+            if (false === $this->running) {
+                return null;
+            }
+
+            $start = $this->milliseconds();
+            while (null !== $modifiedFile = yield $this->innerProcess->wait()) {
+                assert($modifiedFile instanceof ModifiedFile);
+                $this->buffer[$modifiedFile->path()] = $modifiedFile;
+
+                if ($this->milliseconds() - $start >= $this->interval) {
+                    return yield $this->wait();
+                }
+            }
+
+            $this->running = false;
+
+            return yield $this->wait();
         });
+    }
+
+    private function milliseconds(): int
+    {
+        return (int)microtime(true) / 1000;
     }
 }
