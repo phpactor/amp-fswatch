@@ -77,6 +77,6 @@ class BufferedWatcherProcess implements WatcherProcess
 
     private function milliseconds(): int
     {
-        return (int)microtime(true) / 1000;
+        return (int)microtime(true) * 1000;
     }
 }
