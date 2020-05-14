@@ -1,0 +1,277 @@
+Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 678
+
+{"result":{"capabilities":{"textDocumentSync":1,"hoverProvider":true,"completionProvider":{"resolveProvider":false,"triggerCharacters":["$",">"]},"signatureHelpProvider":{"triggerCharacters":["(",","]},"definitionProvider":true,"referencesProvider":true,"documentHighlightProvider":null,"documentSymbolProvider":true,"workspaceSymbolProvider":true,"codeActionProvider":null,"codeLensProvider":null,"documentFormattingProvider":null,"documentRangeFormattingProvider":null,"documentOnTypeFormattingProvider":null,"renameProvider":null,"xworkspaceReferencesProvider":true,"xdefinitionProvider":true,"dependenciesProvider":null,"xdependenciesProvider":true}},"id":1,"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 94
+
+{"method":"window\/logMessage","params":{"type":3,"message":"22 files total"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 134
+
+{"method":"window\/logMessage","params":{"type":3,"message":"Indexing project for definitions and static references"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 167
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFileQueue.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 179
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFileBuilder.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 177
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFileQueue.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 180
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyEvent.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 190
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyEvent.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 182
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 192
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 183
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/TestWatcher\/TestWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 193
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/TestWatcher\/TestWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 176
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Find\/FindWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 186
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Find\/FindWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 176
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Null\/NullWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 186
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Null\/NullWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 182
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/FsWatch\/FsWatchWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 192
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/FsWatch\/FsWatchWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 190
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 200
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 197
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternWatcherProcess.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 207
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternWatcherProcess.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 198
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatchingWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 208
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatchingWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 189
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PhpPollWatcher\/PhpPollWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 199
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PhpPollWatcher\/PhpPollWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 198
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcherProcess.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 208
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcherProcess.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 191
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 201
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 184
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Fallback\/FallbackWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 194
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Fallback\/FallbackWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 159
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SomeClass.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 169
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SomeClass.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 176
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/OsDetector.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 186
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/OsDetector.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 181
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/CommandDetector.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 191
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/CommandDetector.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 164
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherProcess.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 174
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherProcess.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 163
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherConfig.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 173
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherConfig.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 162
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFile.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 172
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFile.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 157
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 167
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 119
+
+{"method":"window\/logMessage","params":{"type":3,"message":"Indexing project for dynamic references"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 167
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFileQueue.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 177
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFileQueue.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 180
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyEvent.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 190
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyEvent.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 182
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 192
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Inotify\/InotifyWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 183
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/TestWatcher\/TestWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 193
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/TestWatcher\/TestWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 176
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Find\/FindWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 186
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Find\/FindWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 176
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Null\/NullWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 186
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Null\/NullWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 182
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/FsWatch\/FsWatchWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 192
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/FsWatch\/FsWatchWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 190
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 200
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 197
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternWatcherProcess.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 207
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternWatcherProcess.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 198
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatchingWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 208
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PatternMatching\/PatternMatchingWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 189
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PhpPollWatcher\/PhpPollWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 199
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/PhpPollWatcher\/PhpPollWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 198
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcherProcess.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 208
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcherProcess.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 191
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 201
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/BufferedWatcher\/BufferedWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 184
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Fallback\/FallbackWatcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 194
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher\/Fallback\/FallbackWatcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 159
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SomeClass.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 169
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SomeClass.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 176
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/OsDetector.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 186
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/OsDetector.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 181
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/CommandDetector.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 191
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/SystemDetector\/CommandDetector.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 164
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherProcess.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 174
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherProcess.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 163
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherConfig.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 173
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/WatcherConfig.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 162
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFile.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 172
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/ModifiedFile.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 157
+
+{"method":"window\/logMessage","params":{"type":4,"message":"Parsing file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher.php"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 167
+
+{"method":"textDocument\/publishDiagnostics","params":{"uri":"file:\/\/\/home\/daniel\/www\/phpactor\/amp-fswatch\/src\/Watcher.php","diagnostics":[]},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 90
+
+{"method":"window\/logMessage","params":{"type":3,"message":"0 Packages"},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 136
+
+{"method":"window\/logMessage","params":{"type":3,"message":"All 22 PHP files parsed in 0 seconds. 142 MiB allocated."},"jsonrpc":"2.0"}Content-Type: application/vscode-jsonrpc; charset=utf8
+Content-Length: 38
+
+{"result":null,"id":2,"jsonrpc":"2.0"}

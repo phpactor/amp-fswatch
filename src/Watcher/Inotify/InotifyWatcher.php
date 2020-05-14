@@ -6,6 +6,7 @@ use Amp\ByteStream\LineReader;
 use Amp\Process\Process;
 use Amp\Promise;
 use Amp\Success;
+use Phpactor\AmpFsWatch\Exception\WatcherDied;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
@@ -17,6 +18,7 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use function Amp\ByteStream\buffer;
 use Webmozart\PathUtil\Path;
 
 class InotifyWatcher implements Watcher, WatcherProcess
@@ -93,7 +95,46 @@ class InotifyWatcher implements Watcher, WatcherProcess
 
     public function wait(): Promise
     {
-        return $this->feedQueue();
+        return \Amp\call(function () {
+            while (null !== $file = array_shift($this->directoryBuffer)) {
+                return $file;
+            }
+
+            if (null === $line = yield $this->lineReader->readLine()) {
+                $exitCode = yield $this->process->join();
+
+                // probably ran out of watchers, throw an error which can be
+                // handled downstream.
+                if ($exitCode === 1) {
+                    throw new WatcherDied(sprintf(
+                        'Inotify exited with status code "%s": %s',
+                        $exitCode,
+                        yield buffer($this->process->getStderr())
+                    ));
+                }
+
+                return null;
+            }
+
+            $event = InotifyEvent::createFromCsv($line);
+
+            $builder = ModifiedFileBuilder::fromPathSegments(
+                $event->watchedFileName(),
+                $event->eventFilename()
+            );
+
+            if ($event->hasEventName('ISDIR')) {
+                $builder = $builder->asFolder();
+            }
+
+            $modifiedFile = $builder->build();
+
+            if ($event->hasEventName('MOVED_TO') && $modifiedFile->type() === ModifiedFile::TYPE_FOLDER) {
+                yield $this->enqueueDirectory($modifiedFile->path());
+            }
+
+            return $modifiedFile;
+        });
     }
 
     public function stop(): void
@@ -125,48 +166,13 @@ class InotifyWatcher implements Watcher, WatcherProcess
             $this->logger->debug(sprintf('Started "%s"', $process->getCommand()));
 
             if (!$process->isRunning()) {
-                throw new RuntimeException(sprintf(
+                throw new WatcherDied(sprintf(
                     'Could not start process: %s',
                     $process->getCommand()
                 ));
             }
 
             return $process;
-        });
-    }
-
-    /**
-     * @return Promise<ModifiedFile|null>
-     */
-    private function feedQueue(): Promise
-    {
-        return \Amp\call(function () {
-            while (null !== $file = array_shift($this->directoryBuffer)) {
-                return $file;
-            }
-
-            if (null === $line = yield $this->lineReader->readLine()) {
-                return null;
-            }
-
-            $event = InotifyEvent::createFromCsv($line);
-
-            $builder = ModifiedFileBuilder::fromPathSegments(
-                $event->watchedFileName(),
-                $event->eventFilename()
-            );
-
-            if ($event->hasEventName('ISDIR')) {
-                $builder = $builder->asFolder();
-            }
-
-            $modifiedFile = $builder->build();
-
-            if ($event->hasEventName('MOVED_TO') && $modifiedFile->type() === ModifiedFile::TYPE_FOLDER) {
-                yield $this->enqueueDirectory($modifiedFile->path());
-            }
-
-            return $modifiedFile;
         });
     }
 
