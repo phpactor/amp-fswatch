@@ -2,12 +2,14 @@
 
 namespace Phpactor\AmpFsWatcher\Tests\Watcher\BufferedWatcher;
 
+use Amp\Delayed;
 use Amp\PHPUnit\AsyncTestCase;
 use Generator;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\Watcher\BufferedWatcher\BufferedWatcher;
 use Phpactor\AmpFsWatch\Watcher\TestWatcher\TestWatcher;
+use RuntimeException;
 
 class BufferedWatcherTest extends AsyncTestCase
 {
@@ -62,5 +64,18 @@ class BufferedWatcherTest extends AsyncTestCase
 
         self::assertSame($expectedFile1, $file1);
         self::assertNull($file2);
+    }
+
+    public function testErrorsBubbleUp(): Generator
+    {
+        $this->expectExceptionMessage('sorry');
+        $expectedFile1 = new ModifiedFile('/foo', ModifiedFile::TYPE_FILE);
+        $queue = new ModifiedFileQueue([
+            $expectedFile1,
+        ]);
+        $bufferedWatcher = new BufferedWatcher(new TestWatcher($queue, 100, new RuntimeException('sorry')), 10);
+        $process = yield $bufferedWatcher->watch();
+        yield new Delayed(100);
+        yield $process->wait();
     }
 }

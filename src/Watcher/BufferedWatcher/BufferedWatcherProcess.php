@@ -2,9 +2,11 @@
 
 namespace Phpactor\AmpFsWatch\Watcher\BufferedWatcher;
 
+use Amp\Delayed;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\WatcherProcess;
+use Throwable;
 
 class BufferedWatcherProcess implements WatcherProcess
 {
@@ -14,14 +16,14 @@ class BufferedWatcherProcess implements WatcherProcess
     private $innerProcess;
 
     /**
+     * @var array<ModifiedFile>
+     */
+    private $buffer = [];
+
+    /**
      * @var bool
      */
     private $running = true;
-
-    /**
-     * @var array<string,ModifiedFile>
-     */
-    private $buffer = [];
 
     /**
      * @var int
@@ -29,14 +31,26 @@ class BufferedWatcherProcess implements WatcherProcess
     private $interval;
 
     /**
-     * @var float
+     * @var Throwable|null
      */
-    private $startTime;
+    private $error;
 
     public function __construct(WatcherProcess $innerProcess, int $interval = 500)
     {
         $this->innerProcess = $innerProcess;
         $this->interval = $interval;
+
+        \Amp\asyncCall(function () {
+            try {
+                while (null !== $modifiedFile = yield $this->innerProcess->wait()) {
+                    assert($modifiedFile instanceof ModifiedFile);
+                    $this->buffer[$modifiedFile->path()] = $modifiedFile;
+                }
+            } catch (Throwable $error) {
+                $this->error = $error;
+            }
+            $this->running = false;
+        });
     }
 
     public function stop(): void
@@ -51,32 +65,19 @@ class BufferedWatcherProcess implements WatcherProcess
     public function wait(): Promise
     {
         return \Amp\call(function () {
-            if (!empty($this->buffer)) {
-                return array_shift($this->buffer);
-            }
-
-            if (false === $this->running) {
-                return null;
-            }
-
-            $start = $this->milliseconds();
-            while (null !== $modifiedFile = yield $this->innerProcess->wait()) {
-                assert($modifiedFile instanceof ModifiedFile);
-                $this->buffer[$modifiedFile->path()] = $modifiedFile;
-
-                if ($this->milliseconds() - $start >= $this->interval) {
-                    return yield $this->wait();
+            while ($this->running || !empty($this->buffer || null !== $this->error)) {
+                if ($this->error) {
+                    $error = $this->error;
+                    $this->error = null;
+                    throw $error;
                 }
+                if ($this->buffer) {
+                    return array_shift($this->buffer);
+                }
+                yield new Delayed($this->interval);
             }
 
-            $this->running = false;
-
-            return yield $this->wait();
+            return null;
         });
-    }
-
-    private function milliseconds(): int
-    {
-        return (int)microtime(true) * 1000;
     }
 }
