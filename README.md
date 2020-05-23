@@ -9,6 +9,15 @@ on your file system changes using various stategues.
 It's been created to trigger code indexing in
 [Phpactor](https://github.com/phpactor/phpactor).
 
+- Promise based API.
+- Capable of automatically selecting a supported watcher for the current
+  environment.
+- Provides realtime (e.g. ``inotify``) watchers in addition to polling ones.
+- Provides decorators for:
+  - Including / excluding patterns.
+  - Buffering notifications.
+- Unitifed configuration for all watchers.
+
 Usage
 -----
 
@@ -79,10 +88,6 @@ $watcher = new FindWatcher($config, $logger);
 // ...
 ```
 
-Arguments:
-
-- 0: Milliseconds between polls
-
 ### PHP Poll
 
 This is the slowest and most resource intensive option but it should
@@ -94,11 +99,6 @@ use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 $watcher = new PhpPollWatcher($config, $logger);
 // ...
 ```
-
-Arguments:
-
-- 0: Milliseconds between polls
-
 
 ### Fallback
 
