@@ -21,32 +21,28 @@ It's been created to trigger code indexing in
 Usage
 -----
 
-In general (see `bin/watch` for a simple example implementation):
+See `bin/watch` for an implementation, which looks _something_ like this:
 
 ```php
-use Amp\Loop;
-use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\Watcher\Fallback\FallbackWatcher;
-use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
-use Phpactor\AmpFsWatch\Watcher\FsWatch\FsWatchWatcher;
-use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
-use Phpactor\AmpFsWatch\Watcher\PhpPollWatcher\PhpPollWatcher;
-
-$logger = // create a PSR logger
 Loop::run(function () use () {
-    $watcher = new FallbackWatcher([
-        new InotifyWatcher($config, $logger),
-        new FsWatchWatcher($config, $logger),
-        new FindWatcher($config, $logger),
-        new PhpPollWatcher($config, $logger),
-    ], $logger);
 
-    $process = yield $watcher->watch([
-        'src',
-    ]);
+    $logger = // create a PSR logger
+    $config = new WatcherConfig([$path]);
+    $watcher = new PatternMatchingWatcher(
+        new FallbackWatcher([
+            new BufferedWatcher(new InotifyWatcher($config, $logger), 10),
+            new FindWatcher($config, $logger),
+            new PhpPollWatcher($config, $logger),
+            new FsWatchWatcher($config, $logger)
+        ], $logger),
+        [ '/**/*.php' ],
+        []
+    );
+
+    $process = yield $watcher->watch([$path]);
 
     while (null !== $file = yield $process->wait()) {
-        fwrite(STDOUT, sprintf('%s (%s)', $file->path(), $file->type()));
+        fwrite(STDOUT, sprintf('[%s] %s (%s)'."\n", date('Y-m-d H:i:s.u'), $file->path(), $file->type()));
     }
 });
 ```
@@ -63,6 +59,8 @@ $watcher = new InotifyWatcher($config, $logger);
 ```
 
 ### Fswatch
+
+**Unstable**: This watcher has not been extensively tested.
 
 [FsWatch](https://github.com/emcrisostomo/fswatch) is a cross-platform
 (Linux,Mac,Windows) file watching utility which will automatically use the
