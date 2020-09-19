@@ -75,7 +75,7 @@ $watcher = new FsWatchWatcher($config, $logger);
 
 ### Find
 
-Use the POSIX `find` binary (Linux and Mac) to poll for file changes.
+Use the `find` binary (Linux and Mac) to poll for file changes.
 
 Poll for changes every second:
 
@@ -85,6 +85,10 @@ use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 $watcher = new FindWatcher($config, $logger);
 // ...
 ```
+
+Note that while this should work on GNU and BSD variants of `find` it may not
+work on other variants due to being invoked with `-newerxy` switch, which is
+not in the POSIX standard.
 
 ### PHP Poll
 

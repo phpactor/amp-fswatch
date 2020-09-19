@@ -20,14 +20,20 @@ class WatcherConfig
     private $filePatterns;
 
     /**
+     * @var string|null
+     */
+    private $lastUpdateReferenceFile;
+
+    /**
      * @param array<string> $paths
      * @param array<string> $filePatterns
      */
-    public function __construct(array $paths, int $pollInterval = 1000, array $filePatterns = [])
+    public function __construct(array $paths, int $pollInterval = 1000, array $filePatterns = [], ?string $lastUpdateReferenceFile = null)
     {
         $this->paths = $paths;
         $this->pollInterval = $pollInterval;
         $this->filePatterns = $filePatterns;
+        $this->lastUpdateReferenceFile = $lastUpdateReferenceFile;
     }
 
     public function withPath(string $path): self
@@ -44,6 +50,13 @@ class WatcherConfig
         return $new;
     }
 
+    public function withLastUpdateReferenceFile(string $lastUpdateReferenceFile): self
+    {
+        $new = clone $this;
+        $this->lastUpdateReferenceFile = $lastUpdateReferenceFile;
+        return $new;
+    }
+
     /**
      * @return array<string>
      */
@@ -52,6 +65,9 @@ class WatcherConfig
         return $this->paths;
     }
 
+    /**
+     * Used by all polling implementations (e.g. find)
+     */
     public function pollInterval(): int
     {
         return $this->pollInterval;
@@ -63,5 +79,14 @@ class WatcherConfig
     public function filePatterns(): array
     {
         return $this->filePatterns;
+    }
+
+    /**
+     * Used by f.e. `find` watcher - any files with a change time greater than
+     * this file will be returned.
+     */
+    public function lastUpdateReferenceFile(): ?string
+    {
+        return $this->lastUpdateReferenceFile;
     }
 }

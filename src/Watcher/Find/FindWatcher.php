@@ -17,6 +17,7 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use function Amp\delay;
 
 class FindWatcher implements Watcher, WatcherProcess
 {
@@ -50,6 +51,11 @@ class FindWatcher implements Watcher, WatcherProcess
      */
     private $config;
 
+    /**
+     * @var string
+     */
+    private $lastUpdateFile;
+
     public function __construct(
         WatcherConfig $config,
         ?LoggerInterface $logger = null,
@@ -59,6 +65,7 @@ class FindWatcher implements Watcher, WatcherProcess
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->queue = new ModifiedFileQueue();
         $this->config = $config;
+        $this->lastUpdateFile = $config->lastUpdateReferenceFile() ?: $this->createTempFile();
     }
 
     public function watch(): Promise
@@ -72,6 +79,8 @@ class FindWatcher implements Watcher, WatcherProcess
 
             $this->updateDateReference();
             $this->running = true;
+
+            yield delay(10);
 
             \Amp\asyncCall(function () {
                 while ($this->running) {
@@ -173,8 +182,8 @@ class FindWatcher implements Watcher, WatcherProcess
                 $path,
                 '-mindepth',
                 '1',
-                '-newerct',
-                $this->lastUpdate->format('Y-m-d H:i:s.u'),
+                '-newercc',
+                $this->lastUpdateFile
             ]);
 
             $pid = yield $process->start();
@@ -192,6 +201,25 @@ class FindWatcher implements Watcher, WatcherProcess
 
     private function updateDateReference(): void
     {
-        $this->lastUpdate = new DateTimeImmutable();
+        touch($this->lastUpdateFile);
+    }
+
+    private function formatDate(): string
+    {
+        return 'Y-m-d H:i:s';
+    }
+
+    private function createTempFile(): string
+    {
+        $name = tempnam(sys_get_temp_dir(), 'amp-fs-watch');
+
+        if (!$name) {
+            throw new RuntimeException(sprintf(
+                'Could not create temporary file "%s"',
+                $name
+            ));
+        }
+
+        return $name;
     }
 }
