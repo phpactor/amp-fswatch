@@ -193,10 +193,17 @@ class WatchmanWatcher implements Watcher, WatcherProcess
                 'ampfs-watch',
                 [
                     'expression' => [
-                        'anyof',
-                        ['type', 'f'],
-                        ['type', 'd'],
-                        ['since', time(), 'ctime'],
+                        'allof',
+                        [
+                            'anyof',
+                            ['type', 'f'],
+                            ['type', 'd']
+                        ],
+                        [
+                            'since',
+                            time(),
+                            'ctime'
+                        ],
                     ],
                     'fields' => [
                         'name','type',
