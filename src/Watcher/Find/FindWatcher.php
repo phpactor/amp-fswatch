@@ -215,7 +215,8 @@ class FindWatcher implements Watcher, WatcherProcess
 
         if (!$name) {
             throw new RuntimeException(sprintf(
-                'Could not create temporary file "%s"', $name
+                'Could not create temporary file "%s"',
+                $name
             ));
         }
 

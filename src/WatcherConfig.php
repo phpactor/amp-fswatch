@@ -81,7 +81,7 @@ class WatcherConfig
         return $this->filePatterns;
     }
 
-    /** 
+    /**
      * Used by f.e. `find` watcher - any files with a change time greater than
      * this file will be returned.
      */
