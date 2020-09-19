@@ -18,9 +18,8 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
-use Symfony\Component\Process\Exception\RuntimeException as SymfonyRuntimeException;
 use function Amp\ByteStream\buffer;
-use Webmozart\PathUtil\Path;
+use function Amp\Promise\first;
 use function Amp\call;
 
 class WatchmanWatcher implements Watcher, WatcherProcess
@@ -33,9 +32,9 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     private $logger;
 
     /**
-     * @var Process|null
+     * @var Process[]
      */
-    private $process;
+    private $subscribers = [];
 
     /**
      * @var CommandDetector
@@ -63,9 +62,14 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     private $config;
 
     /**
-     * @var LineReader
+     * @var LineReader[]
      */
-    private $lineReader;
+    private $lineReaders = [];
+
+    /**
+     * @var array<int,Promise>
+     */
+    private $lineReaderPromises = [];
 
     /**
      * @var array<ModifiedFile>
@@ -89,8 +93,12 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     {
         return call(function () {
             yield $this->watchPaths();
-            $this->process = yield $this->subscribe();
-            $this->lineReader = new LineReader($this->process->getStdout());
+
+            foreach ($this->config->paths() as $path) {
+                $subscriber = yield $this->subscribe($path);
+                $this->subscribers[] = $subscriber;
+                $this->lineReaders[] = new LineReader($subscriber->getStdout());
+            }
 
             return $this;
         });
@@ -103,7 +111,7 @@ class WatchmanWatcher implements Watcher, WatcherProcess
                 return $file;
             }
 
-            while (null !== $line = yield $this->readJson()) {
+            while (null !== $line = yield $this->readLine()) {
                 $notification = json_decode($line, true);
 
                 if (false === $notification) {
@@ -140,13 +148,15 @@ class WatchmanWatcher implements Watcher, WatcherProcess
 
     public function stop(): void
     {
-        if (null === $this->process) {
+        if (null === $this->subscribers) {
             throw new RuntimeException(
                 'Inotifywait process was not started, cannot call stop()'
             );
         }
 
-        $this->process->signal(SIGTERM);
+        foreach ($this->subscribers as $subscriber) {
+            $subscriber->signal(SIGTERM);
+        }
     }
 
     /**
@@ -190,9 +200,9 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     /**
      * @return Promise<Process>
      */
-    private function subscribe(): Promise
+    private function subscribe(string $path): Promise
     {
-        return call(function () {
+        return call(function () use ($path) {
             $process = new Process([
                 self::WATCHMAN_CMD,
                 '-j',
@@ -200,8 +210,6 @@ class WatchmanWatcher implements Watcher, WatcherProcess
                 '--no-pretty'
             ]);
             $this->logger->debug(sprintf('Watchman: %s', $process->getCommand()));
-            $paths = $this->config->paths();
-            $path = reset($paths);
 
             $pid = yield $process->start();
             $payload = (string)json_encode([
@@ -236,26 +244,43 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     /**
      * @return Promise<string|null>
      */
-    private function readJson(): Promise
+    private function readLine(): Promise
     {
         return call(function () {
-            $line = yield $this->lineReader->readLine();
-            $this->logger->debug($line);
+            foreach ($this->lineReaders as $index => $lineReader) {
+                if (array_key_exists((int)$index, $this->lineReaderPromises)) {
+                    continue;
+                }
+
+                $this->lineReaderPromises[(int)$index] = call(function (int $index, LineReader $lineReader) {
+                    $line = yield $lineReader->readLine();
+                    return [$index, $line];
+                }, $index, $lineReader);
+            }
+
+            [$index, $line] = yield first($this->lineReaderPromises);
+            unset($this->lineReaderPromises[(int)$index]);
+            $this->logger->debug(print_r($line, true));
 
             if (null !== $line) {
                 return $line;
             }
 
-            $exitCode = yield $this->process->join();
-        
-            // probably ran out of watchers, throw an error which can be
-            // handled downstream.
-            if ($exitCode === 1) {
-                throw new WatcherDied(sprintf(
-                    'Inotify exited with status code "%s": %s',
-                    $exitCode,
-                    yield buffer($this->process->getStderr())
-                ));
+            foreach ($this->subscribers as $subscriber) {
+                if ($subscriber->isRunning()) {
+                    continue;
+                }
+                $exitCode = yield $subscriber->join();
+
+                // probably ran out of watchers, throw an error which can be
+                // handled downstream.
+                if ($exitCode === 1) {
+                    throw new WatcherDied(sprintf(
+                        'Watchman subscriber exited with status code "%s": %s',
+                        $exitCode,
+                        yield buffer($subscriber->getStderr())
+                    ));
+                }
             }
 
             return null;

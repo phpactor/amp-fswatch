@@ -12,6 +12,8 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
+use function Amp\asyncCall;
+use function Amp\delay;
 
 abstract class WatcherTestCase extends IntegrationTestCase
 {
@@ -130,27 +132,26 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
         yield $this->delay();
 
-        $this->workspace()->put('barfoo/foobar', '');
-        $this->workspace()->put('foobar/barfoo', '');
+        $this->workspace()->put('barfoo/foobar', 'a');
 
         yield $this->delay();
 
-        self::assertEquals(
-            new ModifiedFile(
-                $this->workspace()->path('barfoo/foobar'),
-                ModifiedFile::TYPE_FILE
-            ),
-            yield $process->wait()
-        );
-        self::assertEquals(
-            new ModifiedFile(
-                $this->workspace()->path('foobar/barfoo'),
-                ModifiedFile::TYPE_FILE
-            ),
-            yield $process->wait()
-        );
+        $this->workspace()->put('foobar/barfoo', 'b');
 
+        yield $this->delay();
+
+        $files = [];
+
+        asyncCall(function () use ($process, &$files) {
+            while ($file = yield $process->wait()) {
+                $files[$file->path()] = $file;
+            }
+        });
+        yield delay(10);
         $process->stop();
+
+        self::assertArrayHasKey($this->workspace()->path('barfoo/foobar'), $files);
+        self::assertArrayHasKey($this->workspace()->path('foobar/barfoo'), $files);
     }
 
     protected function delay(): Delayed
@@ -171,7 +172,6 @@ abstract class WatcherTestCase extends IntegrationTestCase
             public function log($level, $message, array $context = [])
             {
                 if ($level === 'debug') {
-                    return;
                 }
                 fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
