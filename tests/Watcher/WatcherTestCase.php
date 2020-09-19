@@ -21,6 +21,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     public function testSingleFileChange(): Generator
     {
+        $this->workspace()->reset();
         $process = yield $this->startProcess();
         yield $this->delay();
         $this->workspace()->put('foobar', '');
@@ -169,6 +170,9 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return new class extends AbstractLogger {
             public function log($level, $message, array $context = [])
             {
+                if ($level === 'debug') {
+                    return;
+                }
                 fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
         };
