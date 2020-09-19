@@ -196,6 +196,7 @@ class WatchmanWatcher implements Watcher, WatcherProcess
                         'anyof',
                         ['type', 'f'],
                         ['type', 'd'],
+                        ['since', time(), 'ctime'],
                     ],
                     'fields' => [
                         'name','type',
