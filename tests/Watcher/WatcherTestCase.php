@@ -12,8 +12,6 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Phpactor\AmpFsWatcher\Tests\IntegrationTestCase;
-use function Amp\asyncCall;
-use function Amp\delay;
 
 abstract class WatcherTestCase extends IntegrationTestCase
 {
@@ -23,7 +21,6 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     public function testSingleFileChange(): Generator
     {
-        $this->workspace()->reset();
         $process = yield $this->startProcess();
         yield $this->delay();
         $this->workspace()->put('foobar', '');
@@ -132,26 +129,21 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
         yield $this->delay();
 
-        $this->workspace()->put('barfoo/foobar', 'a');
-
-        yield $this->delay();
-
-        $this->workspace()->put('foobar/barfoo', 'b');
+        $this->workspace()->put('barfoo/foobar', '');
+        $this->workspace()->put('foobar/barfoo', '');
 
         yield $this->delay();
 
         $files = [];
-
-        asyncCall(function () use ($process, &$files) {
-            while ($file = yield $process->wait()) {
-                $files[$file->path()] = $file;
-            }
-        });
-        yield delay(10);
-        $process->stop();
+        for ($i = 0; $i < 2; $i++) {
+            $file = yield $process->wait();
+            $files[$file->path()] = $file;
+        }
 
         self::assertArrayHasKey($this->workspace()->path('barfoo/foobar'), $files);
         self::assertArrayHasKey($this->workspace()->path('foobar/barfoo'), $files);
+
+        $process->stop();
     }
 
     protected function delay(): Delayed
@@ -171,8 +163,6 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return new class extends AbstractLogger {
             public function log($level, $message, array $context = [])
             {
-                if ($level === 'debug') {
-                }
                 fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
         };

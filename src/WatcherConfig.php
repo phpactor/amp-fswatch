@@ -22,7 +22,7 @@ class WatcherConfig
     /**
      * @param array<string> $paths
      */
-    public function __construct(array $paths, int $pollInterval = 1000, array $filePatterns = [], ?string $lastUpdateReferenceFile = null)
+    public function __construct(array $paths, int $pollInterval = 1000, ?string $lastUpdateReferenceFile = null)
     {
         $this->paths = $paths;
         $this->pollInterval = $pollInterval;

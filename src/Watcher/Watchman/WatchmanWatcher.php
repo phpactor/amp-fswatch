@@ -5,12 +5,9 @@ namespace Phpactor\AmpFsWatch\Watcher\Watchman;
 use Amp\ByteStream\LineReader;
 use Amp\Process\Process;
 use Amp\Promise;
-use Amp\Success;
 use Phpactor\AmpFsWatch\Exception\WatcherDied;
 use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
-use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
 use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
@@ -42,21 +39,6 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     private $commandDetector;
 
     /**
-     * @var OsDetector
-     */
-    private $osDetector;
-
-    /**
-     * @var ModifiedFileQueue
-     */
-    private $queue;
-
-    /**
-     * @var bool
-     */
-    private $running;
-
-    /**
      * @var WatcherConfig
      */
     private $config;
@@ -67,25 +49,22 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     private $lineReaders = [];
 
     /**
-     * @var array<int,Promise>
+     * @var array<int,Promise<string|null>>
      */
     private $lineReaderPromises = [];
 
     /**
      * @var array<ModifiedFile>
      */
-    private $directoryBuffer = [];
+    private $fileBuffer = [];
 
     public function __construct(
         WatcherConfig $config,
         ?LoggerInterface $logger = null,
-        ?CommandDetector $commandDetector = null,
-        ?OsDetector $osDetector = null
+        ?CommandDetector $commandDetector = null
     ) {
         $this->logger = $logger ?: new NullLogger();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
-        $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
-        $this->queue = new ModifiedFileQueue();
         $this->config = $config;
     }
 
@@ -107,7 +86,7 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     public function wait(): Promise
     {
         return call(function () {
-            while (null !== $file = array_shift($this->directoryBuffer)) {
+            while (null !== $file = array_shift($this->fileBuffer)) {
                 return $file;
             }
 
@@ -139,7 +118,7 @@ class WatchmanWatcher implements Watcher, WatcherProcess
                 }
 
                 $file = array_shift($files);
-                $this->directoryBuffer = array_merge($this->directoryBuffer, $files);
+                $this->fileBuffer = array_merge($this->fileBuffer, $files);
 
                 return $file;
             };
@@ -181,7 +160,7 @@ class WatchmanWatcher implements Watcher, WatcherProcess
                     throw new RuntimeException(sprintf(
                         'Watchman exited with code "%s": %s ',
                         $exit,
-                        buffer($process->getStderr())
+                        yield buffer($process->getStderr())
                     ));
                 }
             }
@@ -190,10 +169,6 @@ class WatchmanWatcher implements Watcher, WatcherProcess
 
     public function isSupported(): Promise
     {
-        if (!$this->osDetector->isLinux()) {
-            return new Success(false);
-        }
-
         return $this->commandDetector->commandExists(self::WATCHMAN_CMD);
     }
 

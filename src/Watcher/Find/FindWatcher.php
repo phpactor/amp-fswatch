@@ -163,6 +163,7 @@ class FindWatcher implements Watcher, WatcherProcess
         \Amp\asyncCall(function () use ($stream) {
             $reader = new LineReader($stream);
             while (null !== $line = yield $reader->readLine()) {
+                $this->logger->debug('find found: ' . $line);
                 $this->queue->enqueue(new ModifiedFile($line, is_file($line) ? ModifiedFile::TYPE_FILE : ModifiedFile::TYPE_FOLDER));
             }
         });
