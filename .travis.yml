@@ -13,7 +13,18 @@ cache:
         - $HOME/.composer/cache
 
 before_script:
+    # watchman
+    - wget https://github.com/facebook/watchman/releases/download/v2020.09.14.00/watchman-v2020.09.14.00-linux.zip
+    - unzip watchman-v2020.09.14.00-linux.zip
+    - sudo mkdir -p /usr/local/{bin,lib} /usr/local/var/run/watchman
+    - sudo mv watchman-v2020.09.14.00-linux/bin/watchman /usr/local/bin/watchman
+    - sudo mv watchman-v2020.09.14.00-linux/lib/* /usr/local/lib/
+    - sudo chmod 755 /usr/local/bin/watchman
+    - sudo chmod 2777 /usr/local/var/run/watchman
+
+    # other tools
     - sudo apt-get -y install inotify-tools fswatch
+
     - composer install
 
 script:

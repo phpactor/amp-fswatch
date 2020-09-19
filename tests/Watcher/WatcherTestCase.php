@@ -21,7 +21,6 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     public function testSingleFileChange(): Generator
     {
-        $this->workspace()->reset();
         $process = yield $this->startProcess();
         yield $this->delay();
         $this->workspace()->put('foobar', '');
@@ -135,20 +134,14 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
         yield $this->delay();
 
-        self::assertEquals(
-            new ModifiedFile(
-                $this->workspace()->path('barfoo/foobar'),
-                ModifiedFile::TYPE_FILE
-            ),
-            yield $process->wait()
-        );
-        self::assertEquals(
-            new ModifiedFile(
-                $this->workspace()->path('foobar/barfoo'),
-                ModifiedFile::TYPE_FILE
-            ),
-            yield $process->wait()
-        );
+        $files = [];
+        for ($i = 0; $i < 2; $i++) {
+            $file = yield $process->wait();
+            $files[$file->path()] = $file;
+        }
+
+        self::assertArrayHasKey($this->workspace()->path('barfoo/foobar'), $files);
+        self::assertArrayHasKey($this->workspace()->path('foobar/barfoo'), $files);
 
         $process->stop();
     }
@@ -170,9 +163,6 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return new class extends AbstractLogger {
             public function log($level, $message, array $context = [])
             {
-                if ($level === 'debug') {
-                    return;
-                }
                 fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
         };

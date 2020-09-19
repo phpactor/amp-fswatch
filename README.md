@@ -46,6 +46,16 @@ Loop::run(function () use () {
     }
 });
 ```
+### Watchman
+
+[Watchman](https://facebook.github.io/watchman/) needs to be installed and
+will work on Linux, Mac and Windows.
+
+```php
+use Phpactor\AmpFsWatch\Watcher\Watchman\WatchmanWatcher;
+
+$watcher = new WatchmanWatcher($config, $logger);
+```
 
 ### Inotify
 

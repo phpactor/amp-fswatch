@@ -15,24 +15,17 @@ class WatcherConfig
     private $pollInterval;
 
     /**
-     * @var array<string>
-     */
-    private $filePatterns;
-
-    /**
      * @var string|null
      */
     private $lastUpdateReferenceFile;
 
     /**
      * @param array<string> $paths
-     * @param array<string> $filePatterns
      */
-    public function __construct(array $paths, int $pollInterval = 1000, array $filePatterns = [], ?string $lastUpdateReferenceFile = null)
+    public function __construct(array $paths, int $pollInterval = 1000, ?string $lastUpdateReferenceFile = null)
     {
         $this->paths = $paths;
         $this->pollInterval = $pollInterval;
-        $this->filePatterns = $filePatterns;
         $this->lastUpdateReferenceFile = $lastUpdateReferenceFile;
     }
 
@@ -71,14 +64,6 @@ class WatcherConfig
     public function pollInterval(): int
     {
         return $this->pollInterval;
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function filePatterns(): array
-    {
-        return $this->filePatterns;
     }
 
     /**
