@@ -147,7 +147,7 @@ class WatchmanWatcher implements Watcher, WatcherProcess
             foreach ($this->config->paths() as $path) {
                 $process = new Process([
                     self::WATCHMAN_CMD,
-                    'watch-project',
+                    'watch',
                     $path
                 ]);
 
