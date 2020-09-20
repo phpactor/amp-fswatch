@@ -41,8 +41,8 @@ class BufferedWatcher implements Watcher
     /**
      * {@inheritDoc}
      */
-    public function name(): string
+    public function describe(): string
     {
-        return sprintf('buffered %s', $this->innerWatcher->name());
+        return sprintf('buffered %s', $this->innerWatcher->describe());
     }
 }

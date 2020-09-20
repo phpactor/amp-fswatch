@@ -19,5 +19,5 @@ interface Watcher
     /**
      * @return string
      */
-    public function name(): string;
+    public function describe(): string;
 }

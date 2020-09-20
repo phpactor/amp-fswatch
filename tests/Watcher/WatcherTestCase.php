@@ -148,7 +148,7 @@ abstract class WatcherTestCase extends IntegrationTestCase
 
     public function testReturnsNameAsString()
     {
-        self::assertIsString($this->createWatcher(new WatcherConfig([]))->name());
+        self::assertIsString($this->createWatcher(new WatcherConfig([]))->describe());
     }
 
     protected function delay(): Delayed

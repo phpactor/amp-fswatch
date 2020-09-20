@@ -158,7 +158,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function name(): string
+    public function describe(): string
     {
         return 'fs-watch';
     }

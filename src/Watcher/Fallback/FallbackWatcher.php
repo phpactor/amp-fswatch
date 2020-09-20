@@ -42,7 +42,7 @@ class FallbackWatcher implements Watcher
     {
         return call(function () {
             $watcher = (yield $this->resolveWatcher());
-            $this->lastWatcherName = $watcher->name();
+            $this->lastWatcherName = $watcher->describe();
 
             return $watcher->watch();
         });
@@ -56,7 +56,7 @@ class FallbackWatcher implements Watcher
     /**
      * {@inheritDoc}
      */
-    public function name(): string
+    public function describe(): string
     {
         if (null === $this->lastWatcherName) {
             return 'unknown (pending invocation)';
@@ -79,7 +79,7 @@ class FallbackWatcher implements Watcher
             $names = [];
             foreach ($this->watchers as $watcher) {
                 if (!yield $watcher->isSupported()) {
-                    $names[] = yield new Success($watcher->name());
+                    $names[] = yield new Success($watcher->describe());
                     continue;
                 }
 

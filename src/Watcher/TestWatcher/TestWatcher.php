@@ -73,7 +73,7 @@ class TestWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function name(): string
+    public function describe(): string
     {
         return 'test';
     }

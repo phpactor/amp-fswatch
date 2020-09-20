@@ -227,7 +227,7 @@ class FindWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function name(): string
+    public function describe(): string
     {
         return 'find (BSD/GNU)';
     }

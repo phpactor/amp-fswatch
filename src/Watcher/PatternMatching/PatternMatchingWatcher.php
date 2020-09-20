@@ -49,8 +49,8 @@ class PatternMatchingWatcher implements Watcher
     /**
      * {@inheritDoc}
      */
-    public function name(): string
+    public function describe(): string
     {
-        return sprintf('pattern matching %s', $this->innerWatcher->name());
+        return sprintf('pattern matching %s', $this->innerWatcher->describe());
     }
 }

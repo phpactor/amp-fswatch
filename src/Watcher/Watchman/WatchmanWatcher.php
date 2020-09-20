@@ -273,7 +273,7 @@ class WatchmanWatcher implements Watcher, WatcherProcess
     /**
      * {@inheritDoc}
      */
-    public function name(): string
+    public function describe(): string
     {
         return 'watchman';
     }
