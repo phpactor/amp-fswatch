@@ -154,4 +154,12 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     {
         return $this->commandDetector->commandExists(self::CMD);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        return 'fs-watch';
+    }
 }

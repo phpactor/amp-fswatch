@@ -153,4 +153,12 @@ class PhpPollWatcher implements Watcher, WatcherProcess
     {
         $this->lastUpdate = new DateTimeImmutable();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        return 'php-poll';
+    }
 }

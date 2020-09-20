@@ -163,6 +163,9 @@ abstract class WatcherTestCase extends IntegrationTestCase
         return new class extends AbstractLogger {
             public function log($level, $message, array $context = [])
             {
+                if ($level === 'debug') {
+                    return;
+                }
                 fwrite(STDERR, sprintf('[%s] [%s] %s', microtime(), $level, $message)."\n");
             }
         };

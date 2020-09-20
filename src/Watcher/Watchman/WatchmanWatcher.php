@@ -269,4 +269,12 @@ class WatchmanWatcher implements Watcher, WatcherProcess
             return null;
         });
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        return 'watchman';
+    }
 }

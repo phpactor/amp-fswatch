@@ -15,4 +15,9 @@ interface Watcher
      * @return Promise<bool>
      */
     public function isSupported(): Promise;
+
+    /**
+     * @return string
+     */
+    public function name(): string;
 }

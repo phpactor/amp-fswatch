@@ -8,6 +8,7 @@ use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\Watcher\Null\NullWatcher;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use function Amp\call;
 
 class FallbackWatcher implements Watcher
 {
@@ -22,6 +23,11 @@ class FallbackWatcher implements Watcher
     private $logger;
 
     /**
+     * @var string|null
+     */
+    private $lastWatcherName;
+
+    /**
      * @param array<Watcher> $watchers
      */
     public function __construct(array $watchers, ?LoggerInterface $logger = null)
@@ -34,29 +40,11 @@ class FallbackWatcher implements Watcher
 
     public function watch(): Promise
     {
-        return \Amp\call(function () {
-            $watcherClasses = [];
-            foreach ($this->watchers as $watcher) {
-                $watcherClasses[] = get_class($watcher);
+        return call(function () {
+            $watcher = (yield $this->resolveWatcher());
+            $this->lastWatcherName = $watcher->name();
 
-                if (!yield $watcher->isSupported()) {
-                    continue;
-                }
-
-                $this->logger->notice(sprintf(
-                    'Watching files with "%s"',
-                    get_class($watcher)
-                ));
-
-                return $watcher->watch();
-            }
-
-            $this->logger->warning(sprintf(
-                'No supported watchers, tried "%s".',
-                implode('", "', $watcherClasses)
-            ));
-
-            return new NullWatcher();
+            return $watcher->watch();
         });
     }
 
@@ -65,8 +53,45 @@ class FallbackWatcher implements Watcher
         return new Success(true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        if (null === $this->lastWatcherName) {
+            return 'unknown (pending invocation)';
+        }
+
+        return $this->lastWatcherName;
+    }
+
     private function add(Watcher $watcher): void
     {
         $this->watchers[] = $watcher;
+    }
+
+    /**
+     * @return Promise<bool>
+     */
+    private function resolveWatcher(): Promise
+    {
+        return call(function () {
+            $names = [];
+            foreach ($this->watchers as $watcher) {
+                if (!yield $watcher->isSupported()) {
+                    $names[] = yield new Success($watcher->name());
+                    continue;
+                }
+
+                return $watcher;
+            }
+
+            $this->logger->warning(sprintf(
+                'No supported watchers, tried "%s".',
+                implode('", "', $names)
+            ));
+
+            return new NullWatcher();
+        });
     }
 }

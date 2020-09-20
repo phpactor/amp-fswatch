@@ -35,4 +35,12 @@ class NullWatcher implements Watcher, WatcherProcess
             return null;
         });
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        return 'null';
+    }
 }

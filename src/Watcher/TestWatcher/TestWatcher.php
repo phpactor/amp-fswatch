@@ -69,4 +69,12 @@ class TestWatcher implements Watcher, WatcherProcess
             return null;
         });
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        return 'test';
+    }
 }

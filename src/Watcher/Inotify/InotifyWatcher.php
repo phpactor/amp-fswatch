@@ -213,4 +213,12 @@ class InotifyWatcher implements Watcher, WatcherProcess
             }
         });
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        return 'inotify';
+    }
 }

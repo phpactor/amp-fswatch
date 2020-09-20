@@ -45,4 +45,12 @@ class PatternMatchingWatcher implements Watcher
     {
         return $this->innerWatcher->isSupported();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function name(): string
+    {
+        return sprintf('pattern matching %s', $this->innerWatcher->name());
+    }
 }

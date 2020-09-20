@@ -19,12 +19,33 @@ class FallbackWatcherTest extends AsyncTestCase
      */
     private $logger;
 
+    /**
+     * @var ObjectProphecy
+     */
+    private $watcher1;
+
+    /**
+     * @var ObjectProphecy
+     */
+    private $watcher2;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->logger = $this->prophesize(LoggerInterface::class);
         $this->watcher1 = $this->prophesize(Watcher::class);
+        $this->watcher1->name()->willReturn('watcher1');
         $this->watcher2 = $this->prophesize(Watcher::class);
+        $this->watcher2->name()->willReturn('watcher2');
+    }
+
+    public function testNameIsUnknownWhenCalledBeforeInitialization()
+    {
+        $watcher = $this->createWatcher([
+            $this->watcher1->reveal(),
+            $this->watcher2->reveal(),
+        ]);
+        self::assertEquals('unknown (pending invocation)', $watcher->name());
     }
 
     public function testUsesFirstSupportedWatcher()
@@ -37,12 +58,14 @@ class FallbackWatcherTest extends AsyncTestCase
 
         $nullWatcher = new NullWatcher();
 
-        $process = yield $this->createWatcher([
+        $watcher = $this->createWatcher([
             $this->watcher1->reveal(),
             $nullWatcher
-        ])->watch($paths, $callback);
+        ]);
+        $process = yield $watcher->watch($paths, $callback);
 
         self::assertSame($nullWatcher, $process);
+        self::assertEquals('null', $watcher->name());
     }
 
     public function testReturnsNullWatcherAndLogsWarningIfNoSupportedWatchers()
