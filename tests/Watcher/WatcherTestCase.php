@@ -146,6 +146,11 @@ abstract class WatcherTestCase extends IntegrationTestCase
         $process->stop();
     }
 
+    public function testReturnsNameAsString()
+    {
+        self::assertIsString($this->createWatcher(new WatcherConfig([]))->name());
+    }
+
     protected function delay(): Delayed
     {
         return new Delayed(self::DELAY_MILLI);
