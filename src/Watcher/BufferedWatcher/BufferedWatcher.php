@@ -43,6 +43,6 @@ class BufferedWatcher implements Watcher
      */
     public function name(): string
     {
-        return sprintf('buffered %s', $this->name());
+        return sprintf('buffered %s', $this->innerWatcher->name());
     }
 }
