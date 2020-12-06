@@ -1,7 +1,7 @@
 Amp FS Watch
 ============
 
-[![Build Status](https://travis-ci.org/phpactor/amp-fswatch.svg?branch=master)](https://travis-ci.org/phpactor/amp-fswatch)
+![CI](https://github.com/phpactor/amp-fswatch/workflows/CI/badge.svg)
 
 This is an [Amp](https://amphp.org/) library for asynchronously monitor paths
 on your file system changes using various stategues.
