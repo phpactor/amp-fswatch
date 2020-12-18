@@ -1,5 +1,5 @@
 includes:
-	- vendor/jangregor/phpstan-prophecy/extension.neon
+    - vendor/jangregor/phpstan-prophecy/extension.neon
 parameters:
     level: 7
     inferPrivatePropertyTypeFromConstructor: true
@@ -10,4 +10,4 @@ parameters:
         - src
 
     stubFiles:
-            - etc/stubs/amp.stub
+        - etc/stubs/amp.stub
