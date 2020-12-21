@@ -29,7 +29,7 @@ class FallbackWatcherTest extends AsyncTestCase
      */
     private $watcher2;
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         parent::setUp();
         $this->logger = $this->prophesize(LoggerInterface::class);

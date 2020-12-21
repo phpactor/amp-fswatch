@@ -26,7 +26,7 @@ class InotifyWatcherTest extends WatcherTestCase
      */
     private $osValidator;
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         parent::setUp();
         $this->commandDetector = $this->prophesize(CommandDetector::class);

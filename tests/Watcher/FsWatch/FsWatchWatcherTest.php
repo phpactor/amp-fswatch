@@ -18,7 +18,7 @@ class FsWatchWatcherTest extends WatcherTestCase
      */
     private $commandDetector;
 
-    protected function setUp(): void
+    protected function setUp(): void: void
     {
         parent::setUp();
         $this->commandDetector = $this->prophesize(CommandDetector::class);
