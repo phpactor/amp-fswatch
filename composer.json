@@ -1,10 +1,8 @@
 {
     "name": "phpactor/amp-fswatch",
-    "description": "Async Filesystem Watcher for Amphp",
     "type": "library",
+    "description": "Async Filesystem Watcher for Amphp",
     "license": "MIT",
-    "minimum-stability": "stable",
-    "prefer-stable": false,
     "authors": [
         {
             "name": "Daniel Leech",
@@ -19,12 +17,18 @@
         "webmozart/glob": "^4.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0",
-        "friendsofphp/php-cs-fixer": "^2.15.0",
-        "phpstan/phpstan": "^0.12.0",
-        "phpactor/test-utils": "^1.0.2",
         "amphp/phpunit-util": "^1.3",
-        "jangregor/phpstan-prophecy": "^0.8.0"
+        "ergebnis/composer-normalize": "^2.0",
+        "friendsofphp/php-cs-fixer": "^2.17",
+        "jangregor/phpstan-prophecy": "^0.8.0",
+        "phpactor/test-utils": "^1.0.2",
+        "phpstan/phpstan": "^0.12.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.2.x-dev"
+        }
     },
     "autoload": {
         "psr-4": {
@@ -36,11 +40,8 @@
             "Phpactor\\AmpFsWatcher\\Tests\\": "tests/"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "0.2.x-dev"
-        }
-    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "scripts": {
         "integrate": [
             "vendor/bin/php-cs-fixer fix",
