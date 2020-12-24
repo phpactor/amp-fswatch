@@ -23,7 +23,8 @@
         "jangregor/phpstan-prophecy": "^0.8.0",
         "phpactor/test-utils": "^1.0.2",
         "phpstan/phpstan": "^0.12.0",
-        "phpunit/phpunit": "^8.0"
+        "phpunit/phpunit": "^9.0",
+        "phpspec/prophecy-phpunit": "^2.0"
     },
     "extra": {
         "branch-alias": {

@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 
 class FallbackWatcherTest extends AsyncTestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var ObjectProphecy|LoggerInterface
      */
