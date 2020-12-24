@@ -13,6 +13,7 @@ use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 class FindWatcherTest extends WatcherTestCase
 {
     private const PLAN_DELAY = 100;
+    use \Prophecy\PhpUnit\ProphecyTrait;
 
     /**
      * @var ObjectProphecy

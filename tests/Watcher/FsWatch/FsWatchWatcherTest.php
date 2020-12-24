@@ -13,6 +13,7 @@ use Prophecy\Prophecy\ObjectProphecy;
 
 class FsWatchWatcherTest extends WatcherTestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var ObjectProphecy
      */

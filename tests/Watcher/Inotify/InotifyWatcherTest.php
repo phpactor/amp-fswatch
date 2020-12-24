@@ -16,6 +16,7 @@ use Webmozart\PathUtil\Path;
 
 class InotifyWatcherTest extends WatcherTestCase
 {
+    use \Prophecy\PhpUnit\ProphecyTrait;
     /**
      * @var ObjectProphecy
      */
