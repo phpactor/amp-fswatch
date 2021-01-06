@@ -8,3 +8,4 @@
 /stubs
 /.phpunit.result.cache
 .phpunit.result.cache
+/.vscode
