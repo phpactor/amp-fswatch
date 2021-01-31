@@ -3,8 +3,6 @@ includes:
 parameters:
     level: 7
     inferPrivatePropertyTypeFromConstructor: true
-    ignoreErrors:
-        - '{Unable to resolve the template type .* in call to function}'
 
     paths:
         - src
