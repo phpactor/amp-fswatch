@@ -4,6 +4,7 @@ namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
 use Amp\ByteStream\LineReader;
 use Amp\Process\Process;
+use Amp\Process\StatusError;
 use Amp\Promise;
 use Amp\Success;
 use Phpactor\AmpFsWatch\Exception\WatcherDied;
@@ -145,7 +146,10 @@ class InotifyWatcher implements Watcher, WatcherProcess
             );
         }
 
-        $this->process->signal(SIGTERM);
+        try {
+            $this->process->signal(SIGTERM);
+        } catch (StatusError) {
+        }
     }
 
     /**

@@ -49,5 +49,10 @@
             "vendor/bin/phpstan analyse",
             "vendor/bin/phpunit"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true
+        }
     }
 }

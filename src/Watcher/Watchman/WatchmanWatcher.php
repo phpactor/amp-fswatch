@@ -4,6 +4,7 @@ namespace Phpactor\AmpFsWatch\Watcher\Watchman;
 
 use Amp\ByteStream\LineReader;
 use Amp\Process\Process;
+use Amp\Process\StatusError;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\Exception\WatcherDied;
 use Phpactor\AmpFsWatch\ModifiedFile;
@@ -134,7 +135,10 @@ class WatchmanWatcher implements Watcher, WatcherProcess
         }
 
         foreach ($this->subscribers as $subscriber) {
-            $subscriber->signal(SIGTERM);
+            try {
+                $subscriber->signal(SIGTERM);
+            } catch (StatusError) {
+            }
         }
     }
 

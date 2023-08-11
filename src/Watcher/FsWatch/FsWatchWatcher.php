@@ -5,6 +5,7 @@ namespace Phpactor\AmpFsWatch\Watcher\FsWatch;
 use Amp\ByteStream\LineReader;
 use Amp\Delayed;
 use Amp\Process\Process;
+use Amp\Process\StatusError;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
@@ -104,7 +105,10 @@ class FsWatchWatcher implements Watcher, WatcherProcess
             );
         }
         $this->running = false;
-        $this->process->signal(SIGTERM);
+        try {
+            $this->process->signal(SIGTERM);
+        } catch (StatusError) {
+        }
     }
 
     /**
