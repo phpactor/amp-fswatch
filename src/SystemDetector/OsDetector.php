@@ -4,10 +4,7 @@ namespace Phpactor\AmpFsWatch\SystemDetector;
 
 class OsDetector
 {
-    /**
-     * @var string
-     */
-    private $phpOs;
+    private string $phpOs;
 
     public function __construct(string $phpOs)
     {

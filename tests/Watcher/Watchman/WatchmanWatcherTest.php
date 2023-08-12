@@ -12,13 +12,19 @@ use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 
 class WatchmanWatcherTest extends WatcherTestCase
 {
-    private const PLAN_DELAY = 100;
     use \Prophecy\PhpUnit\ProphecyTrait;
+    private const PLAN_DELAY = 100;
 
     /**
      * @var ObjectProphecy|CommandDetector
      */
     private $commandDetector;
+
+    public function testIsSupported(): Generator
+    {
+        $watcher = $this->createWatcher(new WatcherConfig([]));
+        self::assertTrue(yield $watcher->isSupported());
+    }
 
     protected function createWatcher(WatcherConfig $config): Watcher
     {
@@ -30,11 +36,5 @@ class WatchmanWatcherTest extends WatcherTestCase
             $this->createLogger(),
             $this->commandDetector->reveal()
         );
-    }
-
-    public function testIsSupported(): Generator
-    {
-        $watcher = $this->createWatcher(new WatcherConfig([]));
-        self::assertTrue(yield $watcher->isSupported());
     }
 }

@@ -15,20 +15,15 @@ use Psr\Log\LoggerInterface;
 class FallbackWatcherTest extends AsyncTestCase
 {
     use \Prophecy\PhpUnit\ProphecyTrait;
+
     /**
      * @var ObjectProphecy|LoggerInterface
      */
     private $logger;
 
-    /**
-     * @var ObjectProphecy
-     */
-    private $watcher1;
+    private ObjectProphecy $watcher1;
 
-    /**
-     * @var ObjectProphecy
-     */
-    private $watcher2;
+    private ObjectProphecy $watcher2;
 
     protected function setUp(): void
     {
@@ -40,7 +35,7 @@ class FallbackWatcherTest extends AsyncTestCase
         $this->watcher2->describe()->willReturn('watcher2');
     }
 
-    public function testNameIsUnknownWhenCalledBeforeInitialization()
+    public function testNameIsUnknownWhenCalledBeforeInitialization(): void
     {
         $watcher = $this->createWatcher([
             $this->watcher1->reveal(),
@@ -53,7 +48,7 @@ class FallbackWatcherTest extends AsyncTestCase
     {
         $this->watcher1->isSupported()->willReturn(new Success(false));
 
-        $callback = function () {
+        $callback = function (): void {
         };
         $paths = ['path1'];
 
@@ -74,7 +69,7 @@ class FallbackWatcherTest extends AsyncTestCase
         $this->watcher1->isSupported()->willReturn(new Success(false));
         $this->watcher2->isSupported()->willReturn(new Success(false));
 
-        $callback = function () {
+        $callback = function (): void {
         };
         $paths = ['path1'];
 

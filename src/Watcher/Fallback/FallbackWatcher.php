@@ -15,17 +15,11 @@ class FallbackWatcher implements Watcher
     /**
      * @var array<Watcher>
      */
-    private $watchers;
+    private array $watchers;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var string|null
-     */
-    private $lastWatcherName;
+    private ?string $lastWatcherName;
 
     /**
      * @param array<Watcher> $watchers
@@ -53,9 +47,7 @@ class FallbackWatcher implements Watcher
         return new Success(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function describe(): string
     {
         if (null === $this->lastWatcherName) {

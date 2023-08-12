@@ -12,20 +12,11 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 
 class TestWatcher implements Watcher, WatcherProcess
 {
-    /**
-     * @var ModifiedFileQueue
-     */
-    private $queue;
+    private ModifiedFileQueue $queue;
 
-    /**
-     * @var int
-     */
-    private $delay;
+    private int $delay;
 
-    /**
-     * @var Exception|null
-     */
-    private $error;
+    private ?Exception $error;
 
     public function __construct(ModifiedFileQueue $queue, int $delay = 0, ?Exception $error = null)
     {
@@ -48,9 +39,7 @@ class TestWatcher implements Watcher, WatcherProcess
     {
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function wait(): Promise
     {
         return \Amp\call(function () {
@@ -70,9 +59,7 @@ class TestWatcher implements Watcher, WatcherProcess
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function describe(): string
     {
         return 'test';

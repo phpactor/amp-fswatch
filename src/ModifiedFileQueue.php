@@ -7,7 +7,7 @@ class ModifiedFileQueue
     /**
      * @var array<ModifiedFile>
      */
-    private $queue;
+    private array $queue;
 
     /**
      * @param array<ModifiedFile> $queue

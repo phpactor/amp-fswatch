@@ -10,13 +10,6 @@ use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 
 class PhpPollWatcherTest extends WatcherTestCase
 {
-    protected function createWatcher(WatcherConfig $config): Watcher
-    {
-        return new PhpPollWatcher(
-            $config,
-            $this->createLogger()
-        );
-    }
 
     public function testIsSupported(): Generator
     {
@@ -27,5 +20,12 @@ class PhpPollWatcherTest extends WatcherTestCase
     public function testRemoval(): Generator
     {
         $this->markTestSkipped('Not supported');
+    }
+    protected function createWatcher(WatcherConfig $config): Watcher
+    {
+        return new PhpPollWatcher(
+            $config,
+            $this->createLogger()
+        );
     }
 }

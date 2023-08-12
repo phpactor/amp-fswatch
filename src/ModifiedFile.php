@@ -2,22 +2,16 @@
 
 namespace Phpactor\AmpFsWatch;
 
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 class ModifiedFile
 {
     const TYPE_FILE = 'file';
     const TYPE_FOLDER = 'folder';
 
-    /**
-     * @var string
-     */
-    private $path;
+    private string $path;
 
-    /**
-     * @var string
-     */
-    private $type;
+    private string $type;
 
     public function __construct(string $path, string $type)
     {

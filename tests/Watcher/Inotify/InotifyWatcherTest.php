@@ -12,20 +12,15 @@ use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Inotify\InotifyWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
 use Prophecy\Prophecy\ObjectProphecy;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 class InotifyWatcherTest extends WatcherTestCase
 {
     use \Prophecy\PhpUnit\ProphecyTrait;
-    /**
-     * @var ObjectProphecy
-     */
-    private $commandDetector;
 
-    /**
-     * @var ObjectProphecy
-     */
-    private $osValidator;
+    private ObjectProphecy $commandDetector;
+
+    private ObjectProphecy $osValidator;
 
     protected function setUp(): void
     {
@@ -34,16 +29,6 @@ class InotifyWatcherTest extends WatcherTestCase
         $this->commandDetector->commandExists('inotifywait')->willReturn(true);
         $this->osValidator = $this->prophesize(OsDetector::class);
         $this->osValidator->isLinux()->willReturn(true);
-    }
-
-    protected function createWatcher(WatcherConfig $config): Watcher
-    {
-        return new InotifyWatcher(
-            $config,
-            $this->createLogger(),
-            $this->commandDetector->reveal(),
-            $this->osValidator->reveal()
-        );
     }
 
     public function testIsSupported(): Generator
@@ -101,5 +86,15 @@ class InotifyWatcherTest extends WatcherTestCase
         self::assertArrayHasKey('barfoo/zog/bar.php', $files);
 
         $process->stop();
+    }
+
+    protected function createWatcher(WatcherConfig $config): Watcher
+    {
+        return new InotifyWatcher(
+            $config,
+            $this->createLogger(),
+            $this->commandDetector->reveal(),
+            $this->osValidator->reveal()
+        );
     }
 }

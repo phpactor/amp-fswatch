@@ -13,34 +13,19 @@ use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 class PhpPollWatcher implements Watcher, WatcherProcess
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var DateTimeImmutable
-     */
-    private $lastUpdate;
+    private DateTimeImmutable $lastUpdate;
 
-    /**
-     * @var WatcherConfig
-     */
-    private $config;
+    private WatcherConfig $config;
 
-    /**
-     * @var ModifiedFileQueue
-     */
-    private $queue;
+    private ModifiedFileQueue $queue;
 
-    /**
-     * @var bool
-     */
-    private $running;
+    private bool $running;
 
     public function __construct(
         WatcherConfig $config,
@@ -116,6 +101,12 @@ class PhpPollWatcher implements Watcher, WatcherProcess
         return new Success(true);
     }
 
+
+    public function describe(): string
+    {
+        return 'php-poll';
+    }
+
     /**
      * @return Promise<void>
      */
@@ -124,7 +115,7 @@ class PhpPollWatcher implements Watcher, WatcherProcess
         return \Amp\call(function () use ($path) {
             $files = scandir($path);
             foreach ((array)$files as $file) {
-                if ($file === '.' || $file === '..') {
+                if (false === $file || $file === '.' || $file === '..') {
                     continue;
                 }
                 $filePath = Path::join($path, $file);
@@ -152,13 +143,5 @@ class PhpPollWatcher implements Watcher, WatcherProcess
     private function updateDateReference(): void
     {
         $this->lastUpdate = new DateTimeImmutable();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function describe(): string
-    {
-        return 'php-poll';
     }
 }

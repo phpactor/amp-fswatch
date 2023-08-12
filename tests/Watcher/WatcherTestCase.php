@@ -17,7 +17,12 @@ abstract class WatcherTestCase extends IntegrationTestCase
 {
     const DELAY_MILLI = 20;
 
-    abstract protected function createWatcher(WatcherConfig $config): Watcher;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->setTimeout(5000);
+        $this->workspace()->reset();
+    }
 
     public function testSingleFileChange(): Generator
     {
@@ -146,27 +151,24 @@ abstract class WatcherTestCase extends IntegrationTestCase
         $process->stop();
     }
 
-    public function testReturnsNameAsString()
+    public function testReturnsNameAsString(): void
     {
         self::assertIsString($this->createWatcher(new WatcherConfig([]))->describe());
     }
+
+    abstract public function testIsSupported(): Generator;
+
+    abstract protected function createWatcher(WatcherConfig $config): Watcher;
 
     protected function delay(): Delayed
     {
         return new Delayed(self::DELAY_MILLI);
     }
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->setTimeout(5000);
-        $this->workspace()->reset();
-    }
-
     protected function createLogger(): LoggerInterface
     {
         return new class extends AbstractLogger {
-            public function log($level, $message, array $context = [])
+            public function log($level, $message, array $context = []): void
             {
                 if ($level === 'debug') {
                     return;
@@ -187,6 +189,4 @@ abstract class WatcherTestCase extends IntegrationTestCase
         $watcher = $this->createWatcher(new WatcherConfig($paths));
         return $watcher->watch();
     }
-
-    abstract public function testIsSupported(): Generator;
 }

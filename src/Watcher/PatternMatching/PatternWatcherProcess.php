@@ -7,25 +7,19 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 
 class PatternWatcherProcess implements WatcherProcess
 {
-    /**
-     * @var WatcherProcess
-     */
-    private $process;
+    private WatcherProcess $process;
 
     /**
      * @var array<string>
      */
-    private $includePatterns;
+    private array $includePatterns;
 
-    /**
-     * @var PatternMatcher
-     */
-    private $matcher;
+    private PatternMatcher $matcher;
 
     /**
      * @var array<string>
      */
-    private $excludePatterns;
+    private array $excludePatterns;
 
     /**
      * @param array<string> $includePatterns
@@ -44,9 +38,7 @@ class PatternWatcherProcess implements WatcherProcess
         $this->process->stop();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function wait(): Promise
     {
         return \Amp\call(function () {
