@@ -19,7 +19,7 @@ class FallbackWatcher implements Watcher
 
     private LoggerInterface $logger;
 
-    private ?string $lastWatcherName;
+    private ?string $lastWatcherName = null;
 
     /**
      * @param array<Watcher> $watchers

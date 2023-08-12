@@ -9,13 +9,17 @@ use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class FindWatcherTest extends WatcherTestCase
 {
     use \Prophecy\PhpUnit\ProphecyTrait;
-    private const PLAN_DELAY = 100;
-
+    /**
+     * @var ObjectProphecy<CommandDetector>
+     */
     private ObjectProphecy $commandDetector;
+
+    private const PLAN_DELAY = 100;
 
     public function testRemoval(): Generator
     {

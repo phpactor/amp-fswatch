@@ -21,7 +21,7 @@ class BufferedWatcherProcess implements WatcherProcess
 
     private int $interval;
 
-    private ?Throwable $error;
+    private ?Throwable $error = null;
 
     public function __construct(WatcherProcess $innerProcess, int $interval = 500)
     {
