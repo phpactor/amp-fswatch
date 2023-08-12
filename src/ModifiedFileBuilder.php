@@ -4,15 +4,9 @@ namespace Phpactor\AmpFsWatch;
 
 class ModifiedFileBuilder
 {
-    /**
-     * @var string
-     */
-    private $path;
+    private string $path;
 
-    /**
-     * @var string
-     */
-    private $type = ModifiedFile::TYPE_FILE;
+    private string $type = ModifiedFile::TYPE_FILE;
 
     public function __construct(string $path)
     {

@@ -4,11 +4,11 @@ namespace Phpactor\AmpFsWatch\Watcher\Inotify;
 
 use Amp\ByteStream\LineReader;
 use Amp\Process\Process;
+use Amp\Process\StatusError;
 use Amp\Promise;
 use Amp\Success;
 use Phpactor\AmpFsWatch\Exception\WatcherDied;
 use Phpactor\AmpFsWatch\ModifiedFile;
-use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
 use Phpactor\AmpFsWatch\SystemDetector\OsDetector;
 use Phpactor\AmpFsWatch\ModifiedFileBuilder;
@@ -18,57 +18,29 @@ use Phpactor\AmpFsWatch\WatcherProcess;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RuntimeException;
+use Symfony\Component\Filesystem\Path;
 use function Amp\ByteStream\buffer;
-use Webmozart\PathUtil\Path;
 
 class InotifyWatcher implements Watcher, WatcherProcess
 {
     const INOTIFY_CMD = 'inotifywait';
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var Process|null
-     */
-    private $process;
+    private ?Process $process;
 
-    /**
-     * @var CommandDetector
-     */
-    private $commandDetector;
+    private CommandDetector $commandDetector;
 
-    /**
-     * @var OsDetector
-     */
-    private $osDetector;
+    private OsDetector $osDetector;
 
-    /**
-     * @var ModifiedFileQueue
-     */
-    private $queue;
+    private WatcherConfig $config;
 
-    /**
-     * @var bool
-     */
-    private $running;
-
-    /**
-     * @var WatcherConfig
-     */
-    private $config;
-
-    /**
-     * @var LineReader
-     */
-    private $lineReader;
+    private LineReader $lineReader;
 
     /**
      * @var array<ModifiedFile>
      */
-    private $directoryBuffer = [];
+    private array $directoryBuffer = [];
 
     public function __construct(
         WatcherConfig $config,
@@ -79,7 +51,6 @@ class InotifyWatcher implements Watcher, WatcherProcess
         $this->logger = $logger ?: new NullLogger();
         $this->commandDetector = $commandDetector ?: new CommandDetector();
         $this->osDetector = $osDetector ?: new OsDetector(PHP_OS);
-        $this->queue = new ModifiedFileQueue();
         $this->config = $config;
     }
 
@@ -145,7 +116,25 @@ class InotifyWatcher implements Watcher, WatcherProcess
             );
         }
 
-        $this->process->signal(SIGTERM);
+        try {
+            $this->process->signal(SIGTERM);
+        } catch (StatusError) {
+        }
+    }
+
+    public function isSupported(): Promise
+    {
+        if (!$this->osDetector->isLinux()) {
+            return new Success(false);
+        }
+
+        return $this->commandDetector->commandExists(self::INOTIFY_CMD);
+    }
+
+
+    public function describe(): string
+    {
+        return 'inotify';
     }
 
     /**
@@ -176,15 +165,6 @@ class InotifyWatcher implements Watcher, WatcherProcess
         });
     }
 
-    public function isSupported(): Promise
-    {
-        if (!$this->osDetector->isLinux()) {
-            return new Success(false);
-        }
-
-        return $this->commandDetector->commandExists(self::INOTIFY_CMD);
-    }
-
     /**
      * @return Promise<void>
      */
@@ -193,7 +173,7 @@ class InotifyWatcher implements Watcher, WatcherProcess
         return \Amp\call(function () use ($path) {
             $files = scandir($path);
             foreach ((array)$files as $file) {
-                if ($file === '.' || $file === '..') {
+                if (false === $file || $file === '.' || $file === '..') {
                     continue;
                 }
 
@@ -212,13 +192,5 @@ class InotifyWatcher implements Watcher, WatcherProcess
                 }
             }
         });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function describe(): string
-    {
-        return 'inotify';
     }
 }

@@ -5,6 +5,7 @@ namespace Phpactor\AmpFsWatch\Watcher\FsWatch;
 use Amp\ByteStream\LineReader;
 use Amp\Delayed;
 use Amp\Process\Process;
+use Amp\Process\StatusError;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
@@ -21,35 +22,17 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     private const CMD = 'fswatch';
     private const POLL_TIME = 1;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var Process|null
-     */
-    private $process;
+    private ?Process $process;
 
-    /**
-     * @var CommandDetector
-     */
-    private $commandDetector;
+    private CommandDetector $commandDetector;
 
-    /**
-     * @var ModifiedFileQueue
-     */
-    private $queue;
+    private ModifiedFileQueue $queue;
 
-    /**
-     * @var bool
-     */
-    private $running;
+    private bool $running;
 
-    /**
-     * @var WatcherConfig
-     */
-    private $config;
+    private WatcherConfig $config;
 
     public function __construct(
         WatcherConfig $config,
@@ -62,9 +45,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
         $this->config = $config;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function watch(): Promise
     {
         return \Amp\call(function () {
@@ -100,11 +81,25 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     {
         if (null === $this->process) {
             throw new RuntimeException(
-                'Inotifywait process was not started, cannot call stop()'
+                'fs-watcher process was not started, cannot call stop()'
             );
         }
         $this->running = false;
-        $this->process->signal(SIGTERM);
+        try {
+            $this->process->signal(SIGTERM);
+        } catch (StatusError) {
+        }
+    }
+
+    public function isSupported(): Promise
+    {
+        return $this->commandDetector->commandExists(self::CMD);
+    }
+
+
+    public function describe(): string
+    {
+        return 'fs-watch';
     }
 
     /**
@@ -148,18 +143,5 @@ class FsWatchWatcher implements Watcher, WatcherProcess
                 $this->queue->enqueue($builder->build());
             }
         });
-    }
-
-    public function isSupported(): Promise
-    {
-        return $this->commandDetector->commandExists(self::CMD);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function describe(): string
-    {
-        return 'fs-watch';
     }
 }

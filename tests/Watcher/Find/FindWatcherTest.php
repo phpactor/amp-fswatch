@@ -9,28 +9,17 @@ use Phpactor\AmpFsWatch\Watcher;
 use Phpactor\AmpFsWatch\WatcherConfig;
 use Phpactor\AmpFsWatch\Watcher\Find\FindWatcher;
 use Phpactor\AmpFsWatcher\Tests\Watcher\WatcherTestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 
 class FindWatcherTest extends WatcherTestCase
 {
-    private const PLAN_DELAY = 100;
     use \Prophecy\PhpUnit\ProphecyTrait;
+    private const PLAN_DELAY = 100;
 
     /**
-     * @var ObjectProphecy
+     * @var ObjectProphecy<CommandDetector>
      */
-    private $commandDetector;
-
-    protected function createWatcher(WatcherConfig $config): Watcher
-    {
-        $this->commandDetector = $this->prophesize(CommandDetector::class);
-        $this->commandDetector->commandExists('find')->willReturn(new Success(true));
-
-        return new FindWatcher(
-            $config->withPollInterval(100),
-            $this->createLogger(),
-            $this->commandDetector->reveal()
-        );
-    }
+    private ObjectProphecy $commandDetector;
 
     public function testRemoval(): Generator
     {
@@ -48,5 +37,17 @@ class FindWatcherTest extends WatcherTestCase
         $watcher = $this->createWatcher(new WatcherConfig([]));
         $this->commandDetector->commandExists('find')->willReturn(new Success(false));
         self::assertFalse(yield $watcher->isSupported());
+    }
+
+    protected function createWatcher(WatcherConfig $config): Watcher
+    {
+        $this->commandDetector = $this->prophesize(CommandDetector::class);
+        $this->commandDetector->commandExists('find')->willReturn(new Success(true));
+
+        return new FindWatcher(
+            $config->withPollInterval(100),
+            $this->createLogger(),
+            $this->commandDetector->reveal()
+        );
     }
 }

@@ -7,7 +7,6 @@ use Amp\Delayed;
 use Amp\Process\Process;
 use Amp\Promise;
 use Amp\Process\ProcessInputStream;
-use DateTimeImmutable;
 use Phpactor\AmpFsWatch\ModifiedFile;
 use Phpactor\AmpFsWatch\ModifiedFileQueue;
 use Phpactor\AmpFsWatch\SystemDetector\CommandDetector;
@@ -21,40 +20,17 @@ use function Amp\delay;
 
 class FindWatcher implements Watcher, WatcherProcess
 {
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var DateTimeImmutable
-     */
-    private $lastUpdate;
+    private bool $running = true;
 
-    /**
-     * @var bool
-     */
-    private $running = true;
+    private CommandDetector $commandDetector;
 
-    /**
-     * @var CommandDetector
-     */
-    private $commandDetector;
+    private ModifiedFileQueue $queue;
 
-    /**
-     * @var ModifiedFileQueue
-     */
-    private $queue;
+    private WatcherConfig $config;
 
-    /**
-     * @var WatcherConfig
-     */
-    private $config;
-
-    /**
-     * @var string
-     */
-    private $lastUpdateFile;
+    private string $lastUpdateFile;
 
     public function __construct(
         WatcherConfig $config,
@@ -121,6 +97,12 @@ class FindWatcher implements Watcher, WatcherProcess
     public function isSupported(): Promise
     {
         return $this->commandDetector->commandExists('find');
+    }
+
+
+    public function describe(): string
+    {
+        return 'find (BSD/GNU)';
     }
 
     /**
@@ -205,11 +187,6 @@ class FindWatcher implements Watcher, WatcherProcess
         touch($this->lastUpdateFile);
     }
 
-    private function formatDate(): string
-    {
-        return 'Y-m-d H:i:s';
-    }
-
     private function createTempFile(): string
     {
         $name = tempnam(sys_get_temp_dir(), 'amp-fs-watch');
@@ -222,13 +199,5 @@ class FindWatcher implements Watcher, WatcherProcess
         }
 
         return $name;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function describe(): string
-    {
-        return 'find (BSD/GNU)';
     }
 }

@@ -16,8 +16,6 @@ interface Watcher
      */
     public function isSupported(): Promise;
 
-    /**
-     * @return string
-     */
+
     public function describe(): string;
 }

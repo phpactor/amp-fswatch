@@ -7,17 +7,11 @@ class WatcherConfig
     /**
      * @var array<string>
      */
-    private $paths;
+    private array $paths;
 
-    /**
-     * @var int
-     */
-    private $pollInterval;
+    private int $pollInterval;
 
-    /**
-     * @var string|null
-     */
-    private $lastUpdateReferenceFile;
+    private ?string $lastUpdateReferenceFile;
 
     /**
      * @param array<string> $paths

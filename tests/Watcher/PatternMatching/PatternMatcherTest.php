@@ -10,7 +10,7 @@ class PatternMatcherTest extends TestCase
     /**
      * @dataProvider provideMatchesPattern
      */
-    public function testMatchesPattern(string $path, string $pattern, bool $expected)
+    public function testMatchesPattern(string $path, string $pattern, bool $expected): void
     {
         self::assertEquals($expected, (new PatternMatcher())->matches($path, $pattern));
     }

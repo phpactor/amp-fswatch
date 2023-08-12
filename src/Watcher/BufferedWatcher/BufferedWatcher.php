@@ -7,15 +7,9 @@ use Phpactor\AmpFsWatch\Watcher;
 
 class BufferedWatcher implements Watcher
 {
-    /**
-     * @var Watcher
-     */
-    private $innerWatcher;
+    private Watcher $innerWatcher;
 
-    /**
-     * @var int
-     */
-    private $interval;
+    private int $interval;
 
     public function __construct(Watcher $innerWatcher, int $interval)
     {
@@ -30,17 +24,13 @@ class BufferedWatcher implements Watcher
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function isSupported(): Promise
     {
         return $this->innerWatcher->isSupported();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function describe(): string
     {
         return sprintf('buffered %s', $this->innerWatcher->describe());

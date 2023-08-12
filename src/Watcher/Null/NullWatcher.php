@@ -10,9 +10,7 @@ use Phpactor\AmpFsWatch\Watcher;
 
 class NullWatcher implements Watcher, WatcherProcess
 {
-    /**
-     * {@inheritDoc}
-     */
+
     public function watch(): Promise
     {
         return \Amp\call(function () {
@@ -36,9 +34,7 @@ class NullWatcher implements Watcher, WatcherProcess
         });
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function describe(): string
     {
         return 'null';

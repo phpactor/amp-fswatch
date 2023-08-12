@@ -10,30 +10,18 @@ use Throwable;
 
 class BufferedWatcherProcess implements WatcherProcess
 {
-    /**
-     * @var WatcherProcess
-     */
-    private $innerProcess;
+    private WatcherProcess $innerProcess;
 
     /**
      * @var array<ModifiedFile>
      */
-    private $buffer = [];
+    private array $buffer = [];
 
-    /**
-     * @var bool
-     */
-    private $running = true;
+    private bool $running = true;
 
-    /**
-     * @var int
-     */
-    private $interval;
+    private int $interval;
 
-    /**
-     * @var Throwable|null
-     */
-    private $error;
+    private ?Throwable $error = null;
 
     public function __construct(WatcherProcess $innerProcess, int $interval = 500)
     {
@@ -59,9 +47,7 @@ class BufferedWatcherProcess implements WatcherProcess
         $this->innerProcess->stop();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function wait(): Promise
     {
         return \Amp\call(function () {

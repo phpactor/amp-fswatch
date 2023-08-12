@@ -7,20 +7,17 @@ use Phpactor\AmpFsWatch\Watcher;
 
 class PatternMatchingWatcher implements Watcher
 {
-    /**
-     * @var Watcher
-     */
-    private $innerWatcher;
+    private Watcher $innerWatcher;
 
     /**
      * @var array<string>
      */
-    private $includePatterns;
+    private array $includePatterns;
 
     /**
      * @var array<string>
      */
-    private $excludePatterns;
+    private array $excludePatterns;
 
     /**
      * @param array<string> $includePatterns
@@ -46,9 +43,7 @@ class PatternMatchingWatcher implements Watcher
         return $this->innerWatcher->isSupported();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+
     public function describe(): string
     {
         return sprintf('pattern matching %s', $this->innerWatcher->describe());

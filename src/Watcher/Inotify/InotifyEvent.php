@@ -6,20 +6,14 @@ use RuntimeException;
 
 class InotifyEvent
 {
-    /**
-     * @var string
-     */
-    private $watchedFileName;
+    private string $watchedFileName;
 
     /**
      * @param array<string> $eventNames
      */
     private $eventNames;
 
-    /**
-     * @var string
-     */
-    private $eventFilename;
+    private string $eventFilename;
 
     /**
      * @param array<string> $eventNames

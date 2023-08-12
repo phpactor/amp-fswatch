@@ -4,6 +4,7 @@ namespace Phpactor\AmpFsWatch\Watcher\Watchman;
 
 use Amp\ByteStream\LineReader;
 use Amp\Process\Process;
+use Amp\Process\StatusError;
 use Amp\Promise;
 use Phpactor\AmpFsWatch\Exception\WatcherDied;
 use Phpactor\AmpFsWatch\ModifiedFile;
@@ -23,40 +24,31 @@ class WatchmanWatcher implements Watcher, WatcherProcess
 {
     const WATCHMAN_CMD = 'watchman';
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @var Process[]
      */
-    private $subscribers = [];
+    private array $subscribers = [];
 
-    /**
-     * @var CommandDetector
-     */
-    private $commandDetector;
+    private CommandDetector $commandDetector;
 
-    /**
-     * @var WatcherConfig
-     */
-    private $config;
+    private WatcherConfig $config;
 
     /**
      * @var LineReader[]
      */
-    private $lineReaders = [];
+    private array $lineReaders = [];
 
     /**
      * @var array<int,Promise<string|null>>
      */
-    private $lineReaderPromises = [];
+    private array $lineReaderPromises = [];
 
     /**
      * @var array<ModifiedFile>
      */
-    private $fileBuffer = [];
+    private array $fileBuffer = [];
 
     public function __construct(
         WatcherConfig $config,
@@ -127,15 +119,23 @@ class WatchmanWatcher implements Watcher, WatcherProcess
 
     public function stop(): void
     {
-        if (null === $this->subscribers) {
-            throw new RuntimeException(
-                'Inotifywait process was not started, cannot call stop()'
-            );
-        }
-
         foreach ($this->subscribers as $subscriber) {
-            $subscriber->signal(SIGTERM);
+            try {
+                $subscriber->signal(SIGTERM);
+            } catch (StatusError) {
+            }
         }
+    }
+
+    public function isSupported(): Promise
+    {
+        return $this->commandDetector->commandExists(self::WATCHMAN_CMD);
+    }
+
+
+    public function describe(): string
+    {
+        return 'watchman';
     }
 
     /**
@@ -165,11 +165,6 @@ class WatchmanWatcher implements Watcher, WatcherProcess
                 }
             }
         });
-    }
-
-    public function isSupported(): Promise
-    {
-        return $this->commandDetector->commandExists(self::WATCHMAN_CMD);
     }
 
     /**
@@ -268,13 +263,5 @@ class WatchmanWatcher implements Watcher, WatcherProcess
 
             return null;
         });
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function describe(): string
-    {
-        return 'watchman';
     }
 }

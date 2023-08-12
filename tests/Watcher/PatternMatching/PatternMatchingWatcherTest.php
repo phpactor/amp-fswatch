@@ -12,10 +12,6 @@ use Phpactor\AmpFsWatch\Watcher\TestWatcher\TestWatcher;
 
 class PatternMatchingWatcherTest extends AsyncTestCase
 {
-    protected function createWatcher(array $includePatterns, array $excludePatterns, array $modifiedFiles): Watcher
-    {
-        return new PatternMatchingWatcher(new TestWatcher(new ModifiedFileQueue($modifiedFiles)), $includePatterns, $excludePatterns);
-    }
 
     public function testIncludesFiles()
     {
@@ -53,6 +49,10 @@ class PatternMatchingWatcherTest extends AsyncTestCase
     public function testIsSupported(): Generator
     {
         self::assertTrue(yield $this->createWatcher([], [], [])->isSupported());
+    }
+    protected function createWatcher(array $includePatterns, array $excludePatterns, array $modifiedFiles): Watcher
+    {
+        return new PatternMatchingWatcher(new TestWatcher(new ModifiedFileQueue($modifiedFiles)), $includePatterns, $excludePatterns);
     }
 
     private function createFile(string $name): ModifiedFile
