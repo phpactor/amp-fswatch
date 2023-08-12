@@ -14,12 +14,12 @@ use Prophecy\Prophecy\ObjectProphecy;
 class FindWatcherTest extends WatcherTestCase
 {
     use \Prophecy\PhpUnit\ProphecyTrait;
+    private const PLAN_DELAY = 100;
+
     /**
      * @var ObjectProphecy<CommandDetector>
      */
     private ObjectProphecy $commandDetector;
-
-    private const PLAN_DELAY = 100;
 
     public function testRemoval(): Generator
     {

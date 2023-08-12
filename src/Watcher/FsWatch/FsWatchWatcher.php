@@ -81,7 +81,7 @@ class FsWatchWatcher implements Watcher, WatcherProcess
     {
         if (null === $this->process) {
             throw new RuntimeException(
-                'Inotifywait process was not started, cannot call stop()'
+                'fs-watcher process was not started, cannot call stop()'
             );
         }
         $this->running = false;
