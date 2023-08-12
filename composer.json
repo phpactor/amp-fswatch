@@ -26,7 +26,7 @@
         "phpstan/phpstan": "^1.1",
         "phpunit/phpunit": "^9.0",
         "phpspec/prophecy-phpunit": "^2.0",
-        "symfony/var-dumper": "^6.3"
+        "symfony/var-dumper": "^5.0|^6.3"
     },
     "extra": {
         "branch-alias": {
