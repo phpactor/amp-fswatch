@@ -47,8 +47,11 @@ Loop::run(function () use ($watcher, $path) {
         fwrite(STDOUT, sprintf('[%s] %s (%s)'."\n", date('Y-m-d H:i:s.u'), $file->path(), $file->type()));
     }
 
-    Loop::onSignal(SIGINT, function () use ($process) {
-        $process->stop();
-        Loop::stop();
-    });
+    // Signals are not supported on Windows
+    if(defined('SIGINT')) {
+        Loop::onSignal(SIGINT, function () use ($process) {
+            $process->stop();
+            Loop::stop();
+        });
+    }
 });
